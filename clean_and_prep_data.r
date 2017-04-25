@@ -1,3 +1,4 @@
+# Random comment to rerun everything
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 library(rpart)
 library(plotly)
@@ -80,29 +81,31 @@ wide_data <- read.csv(paste(proj_root, "mpd_stats.csv", sep = "/"),
   rename(nst_session = real_session)
 
 # Load Platform Actions Data Set
-user_pacount_week_query <-
-  paste(proj_root, "user_pacount_week.sql", sep = "/") %>%
-  readLines %>%
-  paste(collapse = " ")
-user_pacount_week <- RPostgreSQL::dbGetQuery(
-  conn = redshift_connection$con
-  , statement = user_pacount_week_query
-) %>%
-  mutate(cohort_id = as.character(cohort_id)) %>%
-  rename(EMAIL_ADDR = email
-         , nst_session = cohort_id
-         , REPORT_DATE = pa_week)
+user_pacount_week <- read.csv(
+  file = paste(proj_root, "user_pacount_week.csv", sep = "/")
+  , stringsAsFactors = F
+  ) %>%
+  mutate(
+    cohort_id = as.character(cohort_id)
+    , pa_week = as.Date(pa_week)
+  ) %>%
+  rename(
+    EMAIL_ADDR = email
+    , nst_session = cohort_id
+    , REPORT_DATE = pa_week
+  )
+
 
 # Load assessments data set
-assessment_response_query <-
-  paste(proj_root, "assessment_query.sql", sep = "/") %>%
-  readLines %>%
-  paste(collapse = " ")
-assessment_response <- RPostgreSQL::dbGetQuery(
-  conn = redshift_connection$con
-  , statement = assessment_response_query
-) %>%
-  mutate(cohort_id = as.character(cohort_id)) %>%
+assessment_response <- read.csv(
+  file = paste(proj_root, "assessment_response.csv", sep = "/")
+  , stringsAsFactors = F
+  ) %>%
+  mutate(
+    cohort_id = as.character(cohort_id)
+    , assessment_week = as.Date(assessment_week)
+#     , assessment_date = as.Date(assessment_date)
+  ) %>%
   mutate(assessment_title = gsub(pattern = "MPD-H"
                                  , replacement = "h"
                                  , x = assessment_title)) %>%
