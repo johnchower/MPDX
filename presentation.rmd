@@ -1,0 +1,313 @@
+```{r preamble, echo=F, message=F, warning = F, error = F}
+library(scales)
+source("./presentation_backend.r")
+```
+# MPDx Fundraising Analysis
+
+## Summary of Results
+
+The three MPDX cohorts that used the platform had more success in their
+fundraising, on average, than the cohorts that didn't use the platform.
+
+However, the cause of this success is unclear. There is insufficient evidence
+to suggest that it can be attributed to:
+
+*  Platform activity
+*  Actions in spaces (a proxy for Champion energy on platform)
+*  Content progress on platform
+*  Assessment Responses
+
+## Goal drop-off 
+If a fundraiser goes too long without meeting their support goal, they become
+increasingly unlikely to ever meet it. Cohorts who used Gloo were much more
+likely to reach their fundraising goal than the pre-Gloo cohorts.
+
+
+### Probability of attaining fundraising goal, Gloo users.
+
+The underlying data for this graph can be found in
+line\_probability\_drop\_off.csv
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+cutoff_week <- 14
+pct_reached_after_cutoff <- user_success_pct %>%
+  filter(
+    days_since_class == cutoff_week * 7
+    , gloo_cohort
+    , variable == "pct_will_succeed"
+  ) %>% {
+    .$value
+  }
+pct_ever_reached_from_gloo <- pct_ever_reached %>%
+  filter(gloo_cohort) %>% {
+    .$pct_will_succeed
+  }
+```
+Among Gloo users, `r round(100 * pct_ever_reached_from_gloo, 1)` % 
+of users ever reached their fundraising
+goal. But among users who hadn't reached their goal by week `r cutoff_week`,
+only `r round(100 * pct_reached_after_cutoff, 1)` % will ever reach their goal.
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+ggplotly(user_success_plot_gloo)
+```
+
+### Probability of attaining fundraising goal, all users.
+
+The underlying data for this graph can be found in
+line\_probability\_drop\_off\_pre\_gloo.csv
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+cutoff_week <- 14
+pct_reached_after_cutoff <- user_success_pct %>%
+  filter(
+    days_since_class == cutoff_week * 7
+    , !gloo_cohort
+    , variable == "pct_will_succeed"
+  ) %>% {
+    .$value
+  }
+pct_ever_reached_non_gloo <- pct_ever_reached %>%
+  filter(!gloo_cohort) %>% {
+    .$pct_will_succeed
+  }
+```
+Among all users, `r round(100 * pct_ever_reached_non_gloo, 1)` % of 
+users ever reached their fundraising
+goal. But among users who hadn't reached their goal by week `r cutoff_week`,
+only `r round(100 * pct_reached_after_cutoff, 1)` % will ever reach their goal.
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+ggplotly(user_success_plot_non_gloo)
+```
+
+
+## Performance Distributions
+
+### Funds Raised Per Week
+
+The underlying data for this graph can be found in
+bar\_chart\_funds\_per\_week.csv
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+avg_funds_raised_per_week_nongloo <- funds_raised_per_week_summary_stats %>%
+  filter(!post_gloo) %>% {
+    .$avg_funds_raised_per_week
+  }
+avg_funds_raised_per_week_gloo <- funds_raised_per_week_summary_stats %>%
+  filter(post_gloo) %>% {
+    .$avg_funds_raised_per_week
+  }
+diff_avg_funds = avg_funds_raised_per_week_gloo -
+  avg_funds_raised_per_week_nongloo
+```
+
+Gloo users raised an average of \$`r round(avg_funds_raised_per_week_gloo, 2)`
+per week, whereas non-Gloo users raised an average of
+\$`r round(avg_funds_raised_per_week_nongloo, 2)`. Gloo users raised
+\$`r round(diff_avg_funds, 2)` per week more than non-Gloo users on average.
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+funds_raised_vs_on_platform_all
+```
+
+### Percentage of Goal Attained
+
+The underlying data for this graph can be found in
+bar\_chart\_pct\_goal\_attained.csv
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+thresh <- 1
+max_pct_summary_stats <- get_max_pct_summary_stats(
+  funds_vs_pas_all
+  , thresh
+)
+pct_reached_nongloo <- max_pct_summary_stats %>%
+  filter(post_gloo == "Before Gloo") %>% {
+    .$pct_reached_threshold
+  }
+pct_reached_gloo <- max_pct_summary_stats %>%
+  filter(post_gloo == "After Gloo") %>% {
+    .$pct_reached_threshold
+  }
+```
+
+`r round(100 * pct_reached_gloo, 1)` % of Gloo users 
+raised at least 
+`r round(100 * thresh, 1)` % of their goal. In contrast, 
+`r round(100 * pct_reached_nongloo, 1)` % of non-Gloo users
+raised at least `r round(100 * thresh, 1)` % of their goal.
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+max_pct_vs_on_platform_all
+```
+
+### Efficiency Analysis
+
+The underlying data for this chart can be found in
+bar\_chart\_efficiency\_analysis.csv
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+time_frame <- 26
+time_to_threshold_hist_data <- get_time_to_threshold_hist_data(
+  wide_data
+  , thresh
+  , timeframe = time_frame
+)
+plot_time_to_threshold <- plot_time_to_threshold_hist_data(
+  time_to_threshold_hist_data
+  , binwidth = 1
+) +
+  scale_x_continuous(
+    breaks = c(
+      `0` = 0
+      , `5` = 5
+      , `10` = 10
+      , `20` = 20
+      , `25` = 25
+      , `    > 25` = 26
+    )
+  )
+
+pct_past_timeframe_data  <- time_to_threshold_hist_data %>%
+  group_by(gloo_cohort) %>%
+  summarise(
+    pct_past_timeframe = mean(weeks_to_threshold > (time_frame - 1))
+  )
+pct_gloo_users_past_timeframe <- pct_past_timeframe_data %>%
+  filter(
+    gloo_cohort
+  ) %>% {
+    .$pct_past_timeframe
+  }
+pct_other_users_past_timeframe <- pct_past_timeframe_data %>%
+  filter(
+    !gloo_cohort
+  ) %>% {
+    .$pct_past_timeframe
+  }
+
+avg_time_to_thresh_gloo <- time_to_threshold_hist_data %>%
+  filter(
+    gloo_cohort
+    , weeks_to_threshold <= (time_frame - 1)
+  ) %>%
+  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
+    .$avg_time_to_thresh
+  }
+avg_time_to_thresh_other <- time_to_threshold_hist_data %>%
+  filter(
+    !gloo_cohort
+    , weeks_to_threshold <= (time_frame - 1)
+  ) %>%
+  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
+    .$avg_time_to_thresh
+  }
+```
+
+`r round(100 * pct_gloo_users_past_timeframe, 1)`% of Gloo users took more than
+`r time_frame - 1` weeks to reach `r round(100 * thresh, 1)`% of their support
+goal. Among Gloo users who reached the `r round(100 * thresh, 1)`%
+threshold in `r time_frame - 1` weeks or less, the average time to reach 
+the threshold was approximately 
+`r round(avg_time_to_thresh_gloo, 1)` weeks.
+
+`r round(100 * pct_other_users_past_timeframe, 1)`% of non-Gloo users took more than
+`r time_frame - 1` weeks to reach `r round(100 * thresh, 1)`% of their support
+goal.
+Among non-Gloo users who reached the `r round(100 * thresh, 1)`%
+threshold in `r time_frame - 1` weeks or less, the average time 
+to reach threshold was approximately 
+`r round(avg_time_to_thresh_other, 1)` weeks.
+
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+plot_time_to_threshold
+```
+
+## Platform activity unrelated to fundraising success
+### Total Platform Actions
+
+The underlying data for this chart can be found in
+scatter\_max\_pct\_vs\_pas.csv
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+ggplotly(
+  plot_max_pct_vs_pas +
+    scale_y_continuous(labels = percent)
+)
+summary(lm_max_pct_vs_pas)
+```
+
+### Space Activity
+
+The underlying data for this chart can be found in
+scatter\_max\_pct\_vs\_spaces.csv
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+ggplotly(
+  plot_max_pct_vs_spaces +
+    scale_y_continuous(labels = percent)
+)
+summary(lm_max_pct_vs_spaces)
+```
+
+### Content Progress
+
+The underlying data for this chart can be found in
+scatter\_max\_pct\_vs\_content_progress.csv
+
+```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
+ggplotly(
+  plot_max_pct_vs_content_progress +
+    scale_y_continuous(labels = percent)
+)
+summary(lm_max_pct_vs_content_progress)
+```
+
+## Fundraising amount (relative to goal) is not correlated to assessment responses
+
+### Hand
+
+The underlying data for this chart can be found in
+scatter\_pct\_goal\_vs\_hand.csv
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+plot_pct_goal_vs_hand_no_zeros +
+  scale_y_continuous(labels = percent)
+summary(lm_pct_goal_vs_hand_no_zeros)
+```
+
+### Heart
+
+The underlying data for this chart can be found in
+scatter\_pct\_goal\_vs\_heart.csv
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+plot_pct_goal_vs_heart_no_zeros +
+  scale_y_continuous(labels = percent)
+summary(lm_pct_goal_vs_heart_no_zeros)
+```
+
+### Head
+
+The underlying data for this chart can be found in
+scatter\_pct\_goal\_vs\_head.csv
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+plot_pct_goal_vs_head_no_zeros +
+  scale_y_continuous(labels = percent)
+summary(lm_pct_goal_vs_head_no_zeros)
+```
+
+## Assessment Volatility Through Time
+
+The underlying data for this chart can be found in
+scatter\_volatility.csv and trend\_volatility.csv
+
+Volatility is calculated as the standard deviation of assessment responses
+within each given week.
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+ggplotly(plot_h3_vol)
+```
