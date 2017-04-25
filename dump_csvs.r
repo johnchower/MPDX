@@ -328,3 +328,14 @@ write.csv(
     )
   , row.names = F
 )
+
+write.csv(
+  retention_curve_data
+  , file = paste(
+      proj_root
+      , csv_directory_name
+      , "retention_curve_data.csv"
+      , sep = "/"
+    )
+  , row.names = F
+)

@@ -10,7 +10,9 @@ library(ggplot2)
 library(scales)
 library(broom)
 library(extraDistr)
+library(zoo)
 glootility::connect_to_redshift()
+source("./retention_curve_functions.r")
 
 wide_data <- read.csv(
   paste(proj_root, "mpd_stats_wide_3.csv", sep = "/")
@@ -424,7 +426,7 @@ new_pct_vs_time_plot <- new_pct_vs_time %>%
 
 #######
 
-lm_new_pct_vs_time <- funds_vs_time %>% 
+lm_new_pct_vs_time <- funds_vs_time %>%
   filter(new_pct_of_goal < Inf) %>% {
   lm(new_pct_of_goal ~ days_since_class, data = .)
   }
@@ -682,5 +684,114 @@ plot_time_to_threshold_hist_data <- function(ttthd, ...){
     facet_grid(gloo_cohort ~ .) +
     ggtitle("Time to reach threshold") +
     ylab("") +
+    ggthemes::theme_tufte()
+}
+
+# Retention Curve
+time_interval <- "month" # "week" or "month"
+cohort_min_age <- 8
+cohort_max_age <- 10
+user_set_query_directory <- paste(proj_root, "user_set_queries", sep = "/")
+sess_dur_data_query_path <- paste(
+  proj_root
+  , "./sess_dur_data_queries/sess_dur_data.sql"
+  , sep = "/"
+)
+
+query_list <- paste(
+  user_set_query_directory
+  , dir(user_set_query_directory)
+  , sep = "/"
+  ) %>%
+  lapply(
+    FUN = function(x) gsub(
+      pattern = ";"
+      , replacement = ""
+      , paste(readLines(x), collapse = " ")
+    )
+  )
+
+query_list_names <- dir(user_set_query_directory) %>% {
+        gsub(pattern = ".sql", replacement = "", x = .)
+    }
+           
+queries_to_run <- list()
+for (i in 1:length(query_list)){
+    new_entry <- list(query_name = query_list_names[i]
+                      , query = query_list[[i]])
+    queries_to_run[[length(queries_to_run) + 1]] <- new_entry
+}
+user_set_query_results <- glootility::run_query_list(
+  queries_to_run
+  , connection = redshift_connection$con
+)
+
+sess_dur_data_query <- sess_dur_data_query_path %>%
+  readLines %>%
+  paste(collapse = " ") %>% {
+    gsub(pattern = ";"
+       , replacement = ""
+       , .)
+  } %>% {
+    gsub(pattern = "xyz_time_interval_xyz"
+       , replacement = time_interval
+       , .)
+  }
+
+sess_dur_data <- RPostgreSQL::dbGetQuery(
+  conn = redshift_connection$con
+  , statement = sess_dur_data_query
+)
+
+if (time_interval == "week"){
+  sess_dur_data <- sess_dur_data %>%
+    mutate(active_week_start_date = as.Date(active_week_start_date))
+} else if (time_interval == "month"){
+  sess_dur_data <- sess_dur_data %>%
+    mutate(active_month_start_date = as.Date(active_month_start_date))
+}
+
+user_ages <- get_user_age(sess_dur_data, time_interval = time_interval)
+cohort <- user_ages %>%
+  filter(age >= cohort_min_age, age <= cohort_max_age)
+retention_curve_data_list <- user_set_query_results %>%
+  names %>% {
+    .
+  } %>%
+  lapply(FUN = function(name){
+    user_set_current <- user_set_query_results[[name]] %>%
+      filter(user_id %in% cohort$user_id) %>% {
+        .[["user_id"]]
+      }
+    retention_curve_data_current <- create_retention_curve_data(
+      user_set_current
+      , sess_dur_data
+      , time_interval = time_interval
+    )
+    current_row_count <- nrow(retention_curve_data_current)
+    cbind(retention_curve_data_current
+       , data.frame(user_group = rep(name, times = current_row_count))
+       )
+  })
+
+if (time_interval == "week"){
+  retention_curve_data <- do.call(rbind, retention_curve_data_list) %>%
+    mutate(weeks_since_signup = as.numeric(weeks_since_signup))
+} else if (time_interval == "month"){
+  retention_curve_data <- do.call(rbind, retention_curve_data_list) %>%
+    mutate(months_since_signup = as.numeric(months_since_signup))
+}
+
+if (time_interval == "week"){
+  plot_retention_curve <- retention_curve_data %>%
+    filter(weeks_since_signup <= cohort_max_age) %>%
+    ggplot(aes(x = weeks_since_signup, y = pct_active, color = user_group)) +
+    geom_line() +
+    ggthemes::theme_tufte()
+} else if (time_interval == "month"){
+  plot_retention_curve <- retention_curve_data %>%
+    filter(months_since_signup <= cohort_max_age) %>%
+    ggplot(aes(x = months_since_signup, y = pct_active, color = user_group)) +
+    geom_line() +
     ggthemes::theme_tufte()
 }

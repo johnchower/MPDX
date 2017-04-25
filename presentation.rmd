@@ -311,3 +311,12 @@ within each given week.
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 ggplotly(plot_h3_vol)
 ```
+
+## Retention Curve
+
+The underlying data for this chart can be found in
+retention_curve_data.csv
+
+```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
+ggplotly(plot_retention_curve)
+```
