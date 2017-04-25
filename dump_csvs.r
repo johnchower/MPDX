@@ -1,5 +1,5 @@
 source("./presentation_backend.r")
-csv_directory_name <- "report_plus_csvs"
+csv_directory_name <- "csvs"
 
 line_probability_drop_off <-
   ggplot_build(user_success_plot_gloo) %>% {
