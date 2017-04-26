@@ -11,8 +11,17 @@ csvs.zip: dump_csvs.r mpd_stats_wide_3.csv
 	Rscript dump_csvs.r; \
 	zip -r csvs.zip csvs
 
-presentation.html: presentation_backend.r mpd_stats_wide_3.csv presentation.rmd retention_curve_functions.r
+presentation.html: presentation_backend.r mpd_stats_wide_3.csv presentation.rmd retention_curve_functions.r user_sets.zip sess_dur_data.csv
 	Rscript -e "rmarkdown::render('presentation.rmd', output_format = 'html_document', output_file = 'presentation.html')"
+
+user_sets.zip: get_user_set_data.r user_set_queries.zip
+	unzip user_set_queries.zip; \
+	Rscript get_user_set_data.r; \
+	zip -r user_sets.zip user_sets; \
+	rm -rf user_sets
+
+sess_dur_data.csv: get_sess_dur_data.r sess_dur_data.sql
+	Rscript get_sess_dur_data.r
 
 mpd_stats_wide_3.csv: clean_and_prep_data.r interpolate_goals.r mpd_stats.csv assessment_response.csv user_pacount_week.csv
 	Rscript clean_and_prep_data.r
