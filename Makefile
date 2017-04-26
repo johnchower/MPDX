@@ -24,8 +24,8 @@ assessment_response.csv: get_assessment_query_csv.r assessment_query.sql
 	Rscript get_assessment_query_csv.r
 
 clean:
-	rm -rf report_plus_csvs
-	rm -rf csvs
+	rm -rf report_plus_csvs; \
+	rm -rf csvs; \
 	rm presentation.txt presentation.md
 
 .PHONY: clean
