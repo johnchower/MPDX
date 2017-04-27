@@ -14,13 +14,12 @@ csvs.zip: dump_csvs.r mpd_stats_wide_3.csv
 presentation.html: presentation_backend.r mpd_stats_wide_3.csv presentation.rmd retention_curve_functions.r user_sets.zip sess_dur_data.csv
 	Rscript -e "rmarkdown::render('presentation.rmd', output_format = 'html_document', output_file = 'presentation.html')"
 
-user_sets.zip: get_user_set_data.r user_set_queries.zip
-	unzip user_set_queries.zip; \
+USERQS = $(wildcard user_set_queries/*)
+user_sets.zip: get_user_set_data.r user_set_queries $(USERQS)
 	mkdir user_sets; \
 	Rscript get_user_set_data.r; \
 	zip -r user_sets.zip user_sets; \
-	rm -rf user_sets; \
-	rm -rf user_set_queries
+	rm -rf user_sets
 
 sess_dur_data.csv: get_sess_dur_data.r sess_dur_data.sql
 	Rscript get_sess_dur_data.r
