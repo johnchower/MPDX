@@ -10,3 +10,5 @@ report_plus_csvs.zip
 packrat/lib*/
 packrat/src*/
 nvimcom*
+sess_dur_data.csv
+user_sets.zip
