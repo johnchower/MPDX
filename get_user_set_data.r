@@ -2,7 +2,6 @@ proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 library(rpart)
 library(plotly)
 library(stats4)
-library(gdata)
 library(tidyr)
 library(plyr)
 library(dplyr)
@@ -15,8 +14,6 @@ glootility::connect_to_redshift()
 source("./retention_curve_functions.r")
 
 time_interval <- "month" # "week" or "month"
-cohort_min_age <- 8
-cohort_max_age <- 10
 user_set_query_directory <- paste(proj_root, "user_set_queries", sep = "/")
 user_set_result_directory <- paste(proj_root, "user_sets", sep = "/")
 

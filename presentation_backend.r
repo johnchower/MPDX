@@ -2,7 +2,6 @@ proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 library(rpart)
 library(plotly)
 library(stats4)
-library(gdata)
 library(tidyr)
 library(plyr)
 library(dplyr)
@@ -691,57 +690,22 @@ plot_time_to_threshold_hist_data <- function(ttthd, ...){
 time_interval <- "month" # "week" or "month"
 cohort_min_age <- 8
 cohort_max_age <- 10
-user_set_query_directory <- paste(proj_root, "user_set_queries", sep = "/")
-sess_dur_data_query_path <- paste(
-  proj_root
-  , "./sess_dur_data_queries/sess_dur_data.sql"
-  , sep = "/"
+user_set_result_directory <- paste(proj_root, "user_sets", sep = "/")
+user_set_result_directory_contents <- dir(user_set_result_directory)
+user_set_result_directory_contents_noext <- gsub(
+  pattern = ".csv"
+  , replacement = ""
+  , x = user_set_result_directory_contents
 )
 
-query_list <- paste(
-  user_set_query_directory
-  , dir(user_set_query_directory)
-  , sep = "/"
-  ) %>%
-  lapply(
-    FUN = function(x) gsub(
-      pattern = ";"
-      , replacement = ""
-      , paste(readLines(x), collapse = " ")
-    )
-  )
+sess_dur_data <- read.csv(paste(proj_root, "sess_dur_data.csv", sep = "/"))
 
-query_list_names <- dir(user_set_query_directory) %>% {
-        gsub(pattern = ".sql", replacement = "", x = .)
-    }
-           
-queries_to_run <- list()
-for (i in 1:length(query_list)){
-    new_entry <- list(query_name = query_list_names[i]
-                      , query = query_list[[i]])
-    queries_to_run[[length(queries_to_run) + 1]] <- new_entry
-}
-user_set_query_results <- glootility::run_query_list(
-  queries_to_run
-  , connection = redshift_connection$con
-)
-
-sess_dur_data_query <- sess_dur_data_query_path %>%
-  readLines %>%
-  paste(collapse = " ") %>% {
-    gsub(pattern = ";"
-       , replacement = ""
-       , .)
-  } %>% {
-    gsub(pattern = "xyz_time_interval_xyz"
-       , replacement = time_interval
-       , .)
-  }
-
-sess_dur_data <- RPostgreSQL::dbGetQuery(
-  conn = redshift_connection$con
-  , statement = sess_dur_data_query
-)
+user_set_query_results <- user_set_result_directory_contents %>%
+  lapply(function(csv_name){
+    full_path_to_csv <- paste(user_set_result_directory, csv_name, sep = "/")
+    read.csv(full_path_to_csv)
+  })
+names(user_set_query_results) <- user_set_result_directory_contents_noext
 
 if (time_interval == "week"){
   sess_dur_data <- sess_dur_data %>%
@@ -795,3 +759,5 @@ if (time_interval == "week"){
     geom_line() +
     ggthemes::theme_tufte()
 }
+
+
