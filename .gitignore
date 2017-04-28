@@ -12,3 +12,5 @@ packrat/src*/
 nvimcom*
 sess_dur_data.csv
 user_sets.zip
+backend_assignments.r
+env_test*
