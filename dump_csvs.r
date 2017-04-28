@@ -1,3 +1,9 @@
+# Set time interval for retention curves 
+source("./option_list.r")
+opt <- parse_args(OptionParser(option_list=option_list))
+time_interval <- opt$timeint
+####
+
 source("./presentation_backend.r")
 csv_directory_name <- "csvs"
 

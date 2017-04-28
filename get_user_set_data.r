@@ -12,8 +12,11 @@ library(extraDistr)
 library(zoo)
 glootility::connect_to_redshift()
 source("./retention_curve_functions.r")
+source("./option_list.r")
 
-time_interval <- "month" # "week" or "month"
+opt <- parse_args(OptionParser(option_list=option_list))
+
+time_interval <- opt$timeint
 user_set_query_directory <- paste(proj_root, "user_set_queries", sep = "/")
 user_set_result_directory <- paste(proj_root, "user_sets", sep = "/")
 

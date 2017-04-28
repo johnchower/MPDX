@@ -11,7 +11,7 @@ library(broom)
 library(extraDistr)
 library(zoo)
 glootility::connect_to_redshift()
-source("./retention_curve_functions.r")
+source("./retention_curve_functions.r", local = T)
 
 wide_data <- read.csv(
   paste(proj_root, "mpd_stats_wide_3.csv", sep = "/")
@@ -687,7 +687,6 @@ plot_time_to_threshold_hist_data <- function(ttthd, ...){
 }
 
 # Retention Curve
-time_interval <- "month" # "week" or "month"
 cohort_min_age <- 8
 cohort_max_age <- 10
 user_set_result_directory <- paste(proj_root, "user_sets", sep = "/")

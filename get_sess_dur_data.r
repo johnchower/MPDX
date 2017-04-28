@@ -1,4 +1,5 @@
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
+library(optparse)
 library(rpart)
 library(plotly)
 library(stats4)
@@ -12,8 +13,12 @@ library(extraDistr)
 library(zoo)
 glootility::connect_to_redshift()
 source("./retention_curve_functions.r")
+source("./option_list.r")
+source("./option_list.r")
 
-time_interval <- "month" # "week" or "month"
+opt <- parse_args(OptionParser(option_list=option_list))
+
+time_interval <- opt$timeint # "week" or "month"
 sess_dur_data_query_path <- paste(
   proj_root
   , "sess_dur_data.sql"
