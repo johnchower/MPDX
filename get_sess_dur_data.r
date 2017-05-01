@@ -16,15 +16,21 @@ source("./retention_curve_functions.r")
 source("./option_list.r")
 source("./option_list.r")
 
-opt <- parse_args(OptionParser(option_list=option_list))
+opt <- parse_args(OptionParser(option_list = option_list))
 
 time_interval <- opt$timeint # "week" or "month"
-sess_dur_data_query_path <- paste(
+sess_dur_data_query_path <- paste0(
   proj_root
-  , "sess_dur_data.sql"
-  , sep = "/"
+  , "/"
+  , opt$sessqueryname
+  , ".sql"
 )
-sess_dur_data_result_path <- paste(proj_root, "sess_dur_data.csv", sep = "/")
+sess_dur_data_result_path <- paste0(
+  proj_root
+  , "/"
+  , opt$sessqueryname
+  , ".csv"
+)
 
 # Get session duration data query results and write results to a directory
 

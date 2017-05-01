@@ -3,6 +3,9 @@ title: MPDX Analysis
 output: html_document
 params:
   timeint: month
+  usersetcsvdir: user_sets
+  usersetqdir: user_set_queries
+  sessqueryname: sess_dur_data
 ---
 
 ```{r preamble, echo=F, message=F, warning = F, error = F}
@@ -14,7 +17,9 @@ timeint_chr <- ifelse(
   , "week"
   , "month"
 )
-back_env$time_interval <- timeint_chr
+back_env$param_time_interval <- timeint_chr
+back_env$param_user_set_result_directory_name <- params$usersetcsvdir
+back_env$param_sess_dur_data_query_name <- params$sessqueryname
 sys.source("./presentation_backend.r", envir = back_env)
 ```
 # MPDx Fundraising Analysis

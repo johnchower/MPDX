@@ -689,7 +689,8 @@ plot_time_to_threshold_hist_data <- function(ttthd, ...){
 # Retention Curve
 cohort_min_age <- 8
 cohort_max_age <- 10
-user_set_result_directory <- paste(proj_root, "user_sets", sep = "/")
+user_set_result_directory <-
+  paste(proj_root, param_user_set_result_directory_name, sep = "/")
 user_set_result_directory_contents <- dir(user_set_result_directory)
 user_set_result_directory_contents_noext <- gsub(
   pattern = ".csv"
@@ -697,7 +698,13 @@ user_set_result_directory_contents_noext <- gsub(
   , x = user_set_result_directory_contents
 )
 
-sess_dur_data <- read.csv(paste(proj_root, "sess_dur_data.csv", sep = "/"))
+sess_dur_data <- read.csv(
+  paste0(
+    proj_root
+    , "/"
+    , param_sess_dur_data_query_name
+    , ".csv"
+))
 
 user_set_query_results <- user_set_result_directory_contents %>%
   lapply(function(csv_name){
@@ -706,15 +713,15 @@ user_set_query_results <- user_set_result_directory_contents %>%
   })
 names(user_set_query_results) <- user_set_result_directory_contents_noext
 
-if (time_interval == "week"){
+if (param_time_interval == "week"){
   sess_dur_data <- sess_dur_data %>%
     mutate(active_week_start_date = as.Date(active_week_start_date))
-} else if (time_interval == "month"){
+} else if (param_time_interval == "month"){
   sess_dur_data <- sess_dur_data %>%
     mutate(active_month_start_date = as.Date(active_month_start_date))
 }
 
-user_ages <- get_user_age(sess_dur_data, time_interval = time_interval)
+user_ages <- get_user_age(sess_dur_data, time_interval = param_time_interval)
 cohort <- user_ages %>%
   filter(age >= cohort_min_age, age <= cohort_max_age)
 retention_curve_data_list <- user_set_query_results %>%
@@ -729,7 +736,7 @@ retention_curve_data_list <- user_set_query_results %>%
     retention_curve_data_current <- create_retention_curve_data(
       user_set_current
       , sess_dur_data
-      , time_interval = time_interval
+      , time_interval = param_time_interval
     )
     current_row_count <- nrow(retention_curve_data_current)
     cbind(retention_curve_data_current
@@ -737,21 +744,21 @@ retention_curve_data_list <- user_set_query_results %>%
        )
   })
 
-if (time_interval == "week"){
+if (param_time_interval == "week"){
   retention_curve_data <- do.call(rbind, retention_curve_data_list) %>%
     mutate(weeks_since_signup = as.numeric(weeks_since_signup))
-} else if (time_interval == "month"){
+} else if (param_time_interval == "month"){
   retention_curve_data <- do.call(rbind, retention_curve_data_list) %>%
     mutate(months_since_signup = as.numeric(months_since_signup))
 }
 
-if (time_interval == "week"){
+if (param_time_interval == "week"){
   plot_retention_curve <- retention_curve_data %>%
     filter(weeks_since_signup <= cohort_max_age) %>%
     ggplot(aes(x = weeks_since_signup, y = pct_active, color = user_group)) +
     geom_line() +
     ggthemes::theme_tufte()
-} else if (time_interval == "month"){
+} else if (param_time_interval == "month"){
   plot_retention_curve <- retention_curve_data %>%
     filter(months_since_signup <= cohort_max_age) %>%
     ggplot(aes(x = months_since_signup, y = pct_active, color = user_group)) +

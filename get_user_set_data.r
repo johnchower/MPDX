@@ -14,11 +14,11 @@ glootility::connect_to_redshift()
 source("./retention_curve_functions.r")
 source("./option_list.r")
 
-opt <- parse_args(OptionParser(option_list=option_list))
+opt <- parse_args(OptionParser(option_list = option_list))
 
 time_interval <- opt$timeint
-user_set_query_directory <- paste(proj_root, "user_set_queries", sep = "/")
-user_set_result_directory <- paste(proj_root, "user_sets", sep = "/")
+user_set_query_directory <- paste(proj_root, opt$usersetqdir, sep = "/")
+user_set_result_directory <- paste(proj_root, opt$usersetcsvdir, sep = "/")
 
 # Get user set query results and write csvs to a directory
 query_list <- paste(
@@ -37,7 +37,7 @@ query_list <- paste(
 query_list_names <- dir(user_set_query_directory) %>% {
         gsub(pattern = ".sql", replacement = "", x = .)
     }
-           
+
 queries_to_run <- list()
 for (i in 1:length(query_list)){
     new_entry <- list(query_name = query_list_names[i]
@@ -48,7 +48,7 @@ user_set_query_results <- glootility::run_query_list(
   queries_to_run
   , connection = redshift_connection$con
 ) %>%
-  lapply(function(x) select(x, user_id)) 
+  lapply(function(x) select(x, user_id))
 user_set_query_result_names <- names(user_set_query_results)
 
 user_set_query_result_names %>%
