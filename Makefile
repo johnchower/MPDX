@@ -9,15 +9,19 @@ report_plus_csvs.zip: csvs.zip presentation.html
 	unzip csvs.zip -d report_plus_csvs; \
 	mv report_plus_csvs/csvs/* report_plus_csvs; \
 	rm -rf report_plus_csvs/csvs; \
-	mv presentation.html report_plus_csvs; \
-	zip -r report_plus_csvs.zip report_plus_csvs
+	cp presentation.html report_plus_csvs; \
+	zip -r report_plus_csvs.zip report_plus_csvs; \
+	rm -rf report_plus_csvs
 
-csvs.zip: presentation_backend.r dump_csvs.r mpd_stats_wide_3.csv
+csvs.zip: presentation_backend.r dump_csvs.r mpd_stats_wide_3.csv presentation_functions.r $(user_set_result_directory).zip $(sess_dur_data_query_name).csv
+	unzip $(user_set_result_directory).zip; \
 	mkdir csvs; \
-	Rscript dump_csvs.r --timeint $(retention_curve_time_interval); \
-	zip -r csvs.zip csvs
+	Rscript dump_csvs.r --timeint $(retention_curve_time_interval) --usersetcsvdir $(user_set_result_directory) --sessqueryname $(sess_dur_data_query_name); \
+	rm -rf $(user_set_result_directory); \
+	zip -r csvs.zip csvs; \
+	rm -rf csvs
 
-presentation.html: presentation_backend.r mpd_stats_wide_3.csv presentation.rmd retention_curve_functions.r $(user_set_result_directory).zip $(sess_dur_data_query_name).csv
+presentation.html: presentation_backend.r mpd_stats_wide_3.csv presentation.rmd retention_curve_functions.r $(user_set_result_directory).zip $(sess_dur_data_query_name).csv presentation_functions.r
 	unzip $(user_set_result_directory).zip; \
 	# Add parameters to the render function call
 	Rscript -e 'rmarkdown::render("presentation.rmd", output_format = "html_document", output_file = "presentation.html", params = list(timeint = "$(retention_curve_time_interval)", sessqueryname = "$(sess_dur_data_query_name)", usersetcsvdir = "$(user_set_result_directory)"))'; \
@@ -48,6 +52,6 @@ start_over:
 	rm -rf csvs; \
 	rm $(sess_dur_data_query_name).csv; \
 	rm $(user_set_result_directory).zip; \
-	rm presentation.txt presentation.md Rplots.pdf presentation.html csvs.zip user_pacount_week.csv
+	rm presentation.txt presentation.md Rplots.pdf presentation.html csvs.zip user_pacount_week.csv report_plus_csvs.zip
 
 .PHONY: start_over
