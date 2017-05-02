@@ -170,83 +170,27 @@ back_env$max_pct_vs_on_platform_all
 The underlying data for this chart can be found in
 bar\_chart\_efficiency\_analysis.csv
 
-```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-time_to_threshold_hist_data <- back_env$get_time_to_threshold_hist_data(
-  back_env$wide_data
-  , back_env$param_efficiency_analysis_threshold_pct
-  , timeframe = back_env$param_efficiency_analysis_threshold_week
-)
-plot_time_to_threshold <- back_env$plot_time_to_threshold_hist_data(
-  time_to_threshold_hist_data
-  , binwidth = 1
-) +
-  scale_x_continuous(
-    breaks = c(
-      `0` = 0
-      , `5` = 5
-      , `10` = 10
-      , `20` = 20
-      , `25` = 25
-      , `    > 25` = 26
-    )
-  )
-
-pct_past_timeframe_data  <- time_to_threshold_hist_data %>%
-  group_by(gloo_cohort) %>%
-  summarise(
-    pct_past_timeframe = mean(weeks_to_threshold > (back_env$param_efficiency_analysis_threshold_week - 1))
-  )
-pct_gloo_users_past_timeframe <- pct_past_timeframe_data %>%
-  filter(
-    gloo_cohort
-  ) %>% {
-    .$pct_past_timeframe
-  }
-pct_other_users_past_timeframe <- pct_past_timeframe_data %>%
-  filter(
-    !gloo_cohort
-  ) %>% {
-    .$pct_past_timeframe
-  }
-
-avg_time_to_thresh_gloo <- time_to_threshold_hist_data %>%
-  filter(
-    gloo_cohort
-    , weeks_to_threshold <= (back_env$param_efficiency_analysis_threshold_week - 1)
-  ) %>%
-  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
-    .$avg_time_to_thresh
-  }
-avg_time_to_thresh_other <- time_to_threshold_hist_data %>%
-  filter(
-    !gloo_cohort
-    , weeks_to_threshold <= (back_env$param_efficiency_analysis_threshold_week - 1)
-  ) %>%
-  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
-    .$avg_time_to_thresh
-  }
-```
-
-`r round(100 * pct_gloo_users_past_timeframe, 1)`% of Gloo users took more than
+`r round(100 * back_env$pct_gloo_users_past_timeframe, 1)`% of Gloo users took more than
 `r back_env$param_efficiency_analysis_threshold_week - 1` weeks to reach 
 `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`% 
-of their support goal. Among Gloo users who reached the `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`%
+of their support goal. 
+Among Gloo users who reached the `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`%
 threshold in `r back_env$param_efficiency_analysis_threshold_week - 1` weeks or less, the average time to reach 
 the threshold was approximately 
-`r round(avg_time_to_thresh_gloo, 1)` weeks.
+`r round(back_env$avg_time_to_thresh_gloo, 1)` weeks.
 
-`r round(100 * pct_other_users_past_timeframe, 1)`% of non-Gloo users took more than
+`r round(100 * back_env$pct_other_users_past_timeframe, 1)`% of non-Gloo users took more than
 `r back_env$param_efficiency_analysis_threshold_week - 1` weeks to reach 
 `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`% 
 of their support goal.
 Among non-Gloo users who reached the `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`%
 threshold in `r back_env$param_efficiency_analysis_threshold_week - 1` weeks or less, the average time 
 to reach threshold was approximately 
-`r round(avg_time_to_thresh_other, 1)` weeks.
+`r round(back_env$avg_time_to_thresh_other, 1)` weeks.
 
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-plot_time_to_threshold
+back_env$plot_time_to_threshold
 ```
 
 ## Platform activity unrelated to fundraising success

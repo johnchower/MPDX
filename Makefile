@@ -1,7 +1,7 @@
 # retention_curve_time_interval can be either "month" or "week"
 retention_curve_time_interval := month
 efficiency_analysis_threshold_week := 26
-efficiency_analysis_threshold_pct := .05
+efficiency_analysis_threshold_pct := .5
 user_set_query_directory := user_set_queries
 user_set_result_directory := user_sets
 sess_dur_data_query_name := sess_dur_data

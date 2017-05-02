@@ -218,13 +218,64 @@ plot_h3_vol <- h3_vol %>%
   ggthemes::theme_tufte()
 
 ########
-# Time to threshold analysis
-# Currently, the functions for the time to threshold analysis are defined in
-# presentation_functions.r, and all of the data manipulation happens in
-# presentation.html
-# The next commit will push the data manipulation back to this file, and
-# abstract the 26-week timeframe into a parameter defined in the makefile.
-# That code will go here, but for now this serves as a placeholder.
+time_to_threshold_hist_data <- get_time_to_threshold_hist_data(
+  wide_data
+  , param_efficiency_analysis_threshold_pct
+  , timeframe = param_efficiency_analysis_threshold_week
+)
+plot_time_to_threshold <- plot_time_to_threshold_hist_data(
+  time_to_threshold_hist_data
+  , binwidth = 1
+) +
+  scale_x_continuous(
+    breaks = c(
+      `0` = 0
+      , `5` = 5
+      , `10` = 10
+      , `20` = 20
+      , `25` = 25
+      , `    > 25` = 26
+    )
+  )
+pct_past_timeframe_data  <- time_to_threshold_hist_data %>%
+  group_by(gloo_cohort) %>%
+  summarise(
+    pct_past_timeframe =
+      mean(
+        weeks_to_threshold >
+          (param_efficiency_analysis_threshold_week - 1)
+      )
+  )
+pct_gloo_users_past_timeframe <- pct_past_timeframe_data %>%
+  filter(
+    gloo_cohort
+  ) %>% {
+    .$pct_past_timeframe
+  }
+pct_other_users_past_timeframe <- pct_past_timeframe_data %>%
+  filter(
+    !gloo_cohort
+  ) %>% {
+    .$pct_past_timeframe
+  }
+avg_time_to_thresh_gloo <- time_to_threshold_hist_data %>%
+  filter(
+    gloo_cohort
+    , weeks_to_threshold <=
+        (param_efficiency_analysis_threshold_week - 1)
+  ) %>%
+  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
+    .$avg_time_to_thresh
+  }
+avg_time_to_thresh_other <- time_to_threshold_hist_data %>%
+  filter(
+    !gloo_cohort
+    , weeks_to_threshold <=
+        (param_efficiency_analysis_threshold_week - 1)
+  ) %>%
+  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
+    .$avg_time_to_thresh
+  }
 #######
 
 # Retention Curve
