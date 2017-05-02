@@ -10,7 +10,6 @@ suppressMessages(library(scales))
 suppressMessages(library(broom))
 suppressMessages(library(extraDistr))
 suppressMessages(library(zoo))
-glootility::connect_to_redshift()
 source("./presentation_functions.r", local = T)
 source("./retention_curve_functions.r", local = T)
 

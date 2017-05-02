@@ -49,11 +49,14 @@ user_pacount_week.csv: get_user_pacount_week_csv.r user_pacount_week.sql
 assessment_response.csv: get_assessment_query_csv.r assessment_query.sql
 	Rscript get_assessment_query_csv.r
 
+csv_inputs: assessment_response.csv user_pacount_week.csv mpd_stats_wide_3.csv $(sess_dur_data_query_name).csv $(user_set_result_directory).zip
+
 start_over:
 	rm -rf report_plus_csvs; \
 	rm -rf csvs; \
 	rm $(sess_dur_data_query_name).csv; \
 	rm $(user_set_result_directory).zip; \
-	rm presentation.txt presentation.md Rplots.pdf presentation.html csvs.zip user_pacount_week.csv report_plus_csvs.zip
+	rm presentation.txt presentation.md Rplots.pdf presentation.html csvs.zip; \
+	rm user_pacount_week.csv report_plus_csvs.zip mpd_stats_wide_3.csv assessment_response.csv
 
-.PHONY: start_over
+.PHONY: start_over csv_inputs
