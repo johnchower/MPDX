@@ -1,6 +1,30 @@
+---
+title: MPDX Analysis
+output: html_document
+params:
+  timeint: month
+  usersetcsvdir: user_sets
+  usersetqdir: user_set_queries
+  sessqueryname: sess_dur_data
+  effthreshpct: 1
+  effthreshweek: 26
+---
+
 ```{r preamble, echo=F, message=F, warning = F, error = F}
-library(scales)
-source("./presentation_backend.r")
+suppressMessages(library(scales))
+back_env <- new.env()
+timeint <- params$timeint
+timeint_chr <- ifelse(
+  params$timeint == "week"
+  , "week"
+  , "month"
+)
+back_env$param_efficiency_analysis_threshold_pct <- params$effthreshpct
+back_env$param_efficiency_analysis_threshold_week <- params$effthreshweek
+back_env$param_time_interval <- timeint_chr
+back_env$param_user_set_result_directory_name <- params$usersetcsvdir
+back_env$param_sess_dur_data_query_name <- params$sessqueryname
+sys.source("./presentation_backend.r", envir = back_env)
 ```
 # MPDx Fundraising Analysis
 
@@ -30,7 +54,7 @@ line\_probability\_drop\_off.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 cutoff_week <- 14
-pct_reached_after_cutoff <- user_success_pct %>%
+pct_reached_after_cutoff <- back_env$user_success_pct %>%
   filter(
     days_since_class == cutoff_week * 7
     , gloo_cohort
@@ -38,7 +62,7 @@ pct_reached_after_cutoff <- user_success_pct %>%
   ) %>% {
     .$value
   }
-pct_ever_reached_from_gloo <- pct_ever_reached %>%
+pct_ever_reached_from_gloo <- back_env$pct_ever_reached %>%
   filter(gloo_cohort) %>% {
     .$pct_will_succeed
   }
@@ -49,7 +73,7 @@ goal. But among users who hadn't reached their goal by week `r cutoff_week`,
 only `r round(100 * pct_reached_after_cutoff, 1)` % will ever reach their goal.
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(user_success_plot_gloo)
+ggplotly(back_env$user_success_plot_gloo)
 ```
 
 ### Probability of attaining fundraising goal, all users.
@@ -59,7 +83,7 @@ line\_probability\_drop\_off\_pre\_gloo.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 cutoff_week <- 14
-pct_reached_after_cutoff <- user_success_pct %>%
+pct_reached_after_cutoff <- back_env$user_success_pct %>%
   filter(
     days_since_class == cutoff_week * 7
     , !gloo_cohort
@@ -67,7 +91,7 @@ pct_reached_after_cutoff <- user_success_pct %>%
   ) %>% {
     .$value
   }
-pct_ever_reached_non_gloo <- pct_ever_reached %>%
+pct_ever_reached_non_gloo <- back_env$pct_ever_reached %>%
   filter(!gloo_cohort) %>% {
     .$pct_will_succeed
   }
@@ -78,7 +102,7 @@ goal. But among users who hadn't reached their goal by week `r cutoff_week`,
 only `r round(100 * pct_reached_after_cutoff, 1)` % will ever reach their goal.
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(user_success_plot_non_gloo)
+ggplotly(back_env$user_success_plot_non_gloo)
 ```
 
 
@@ -90,11 +114,11 @@ The underlying data for this graph can be found in
 bar\_chart\_funds\_per\_week.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-avg_funds_raised_per_week_nongloo <- funds_raised_per_week_summary_stats %>%
+avg_funds_raised_per_week_nongloo <- back_env$funds_raised_per_week_summary_stats %>%
   filter(!post_gloo) %>% {
     .$avg_funds_raised_per_week
   }
-avg_funds_raised_per_week_gloo <- funds_raised_per_week_summary_stats %>%
+avg_funds_raised_per_week_gloo <- back_env$funds_raised_per_week_summary_stats %>%
   filter(post_gloo) %>% {
     .$avg_funds_raised_per_week
   }
@@ -108,7 +132,7 @@ per week, whereas non-Gloo users raised an average of
 \$`r round(diff_avg_funds, 2)` per week more than non-Gloo users on average.
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-funds_raised_vs_on_platform_all
+back_env$funds_raised_vs_on_platform_all
 ```
 
 ### Percentage of Goal Attained
@@ -117,10 +141,9 @@ The underlying data for this graph can be found in
 bar\_chart\_pct\_goal\_attained.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-thresh <- 1
-max_pct_summary_stats <- get_max_pct_summary_stats(
-  funds_vs_pas_all
-  , thresh
+max_pct_summary_stats <- back_env$get_max_pct_summary_stats(
+  back_env$funds_vs_pas_all
+  , back_env$param_efficiency_analysis_threshold_pct
 )
 pct_reached_nongloo <- max_pct_summary_stats %>%
   filter(post_gloo == "Before Gloo") %>% {
@@ -134,12 +157,12 @@ pct_reached_gloo <- max_pct_summary_stats %>%
 
 `r round(100 * pct_reached_gloo, 1)` % of Gloo users 
 raised at least 
-`r round(100 * thresh, 1)` % of their goal. In contrast, 
+`r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)` % of their goal. In contrast, 
 `r round(100 * pct_reached_nongloo, 1)` % of non-Gloo users
-raised at least `r round(100 * thresh, 1)` % of their goal.
+raised at least `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)` % of their goal.
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-max_pct_vs_on_platform_all
+back_env$max_pct_vs_on_platform_all
 ```
 
 ### Efficiency Analysis
@@ -147,82 +170,27 @@ max_pct_vs_on_platform_all
 The underlying data for this chart can be found in
 bar\_chart\_efficiency\_analysis.csv
 
-```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-time_frame <- 26
-time_to_threshold_hist_data <- get_time_to_threshold_hist_data(
-  wide_data
-  , thresh
-  , timeframe = time_frame
-)
-plot_time_to_threshold <- plot_time_to_threshold_hist_data(
-  time_to_threshold_hist_data
-  , binwidth = 1
-) +
-  scale_x_continuous(
-    breaks = c(
-      `0` = 0
-      , `5` = 5
-      , `10` = 10
-      , `20` = 20
-      , `25` = 25
-      , `    > 25` = 26
-    )
-  )
-
-pct_past_timeframe_data  <- time_to_threshold_hist_data %>%
-  group_by(gloo_cohort) %>%
-  summarise(
-    pct_past_timeframe = mean(weeks_to_threshold > (time_frame - 1))
-  )
-pct_gloo_users_past_timeframe <- pct_past_timeframe_data %>%
-  filter(
-    gloo_cohort
-  ) %>% {
-    .$pct_past_timeframe
-  }
-pct_other_users_past_timeframe <- pct_past_timeframe_data %>%
-  filter(
-    !gloo_cohort
-  ) %>% {
-    .$pct_past_timeframe
-  }
-
-avg_time_to_thresh_gloo <- time_to_threshold_hist_data %>%
-  filter(
-    gloo_cohort
-    , weeks_to_threshold <= (time_frame - 1)
-  ) %>%
-  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
-    .$avg_time_to_thresh
-  }
-avg_time_to_thresh_other <- time_to_threshold_hist_data %>%
-  filter(
-    !gloo_cohort
-    , weeks_to_threshold <= (time_frame - 1)
-  ) %>%
-  summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
-    .$avg_time_to_thresh
-  }
-```
-
-`r round(100 * pct_gloo_users_past_timeframe, 1)`% of Gloo users took more than
-`r time_frame - 1` weeks to reach `r round(100 * thresh, 1)`% of their support
-goal. Among Gloo users who reached the `r round(100 * thresh, 1)`%
-threshold in `r time_frame - 1` weeks or less, the average time to reach 
+`r round(100 * back_env$pct_gloo_users_past_timeframe, 1)`% of Gloo users took more than
+`r back_env$param_efficiency_analysis_threshold_week - 1` weeks to reach 
+`r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`% 
+of their support goal. 
+Among Gloo users who reached the `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`%
+threshold in `r back_env$param_efficiency_analysis_threshold_week - 1` weeks or less, the average time to reach 
 the threshold was approximately 
-`r round(avg_time_to_thresh_gloo, 1)` weeks.
+`r round(back_env$avg_time_to_thresh_gloo, 1)` weeks.
 
-`r round(100 * pct_other_users_past_timeframe, 1)`% of non-Gloo users took more than
-`r time_frame - 1` weeks to reach `r round(100 * thresh, 1)`% of their support
-goal.
-Among non-Gloo users who reached the `r round(100 * thresh, 1)`%
-threshold in `r time_frame - 1` weeks or less, the average time 
+`r round(100 * back_env$pct_other_users_past_timeframe, 1)`% of non-Gloo users took more than
+`r back_env$param_efficiency_analysis_threshold_week - 1` weeks to reach 
+`r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`% 
+of their support goal.
+Among non-Gloo users who reached the `r round(100 * back_env$param_efficiency_analysis_threshold_pct, 1)`%
+threshold in `r back_env$param_efficiency_analysis_threshold_week - 1` weeks or less, the average time 
 to reach threshold was approximately 
-`r round(avg_time_to_thresh_other, 1)` weeks.
+`r round(back_env$avg_time_to_thresh_other, 1)` weeks.
 
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-plot_time_to_threshold
+back_env$plot_time_to_threshold
 ```
 
 ## Platform activity unrelated to fundraising success
@@ -233,10 +201,10 @@ scatter\_max\_pct\_vs\_pas.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
 ggplotly(
-  plot_max_pct_vs_pas +
+  back_env$plot_max_pct_vs_pas +
     scale_y_continuous(labels = percent)
 )
-summary(lm_max_pct_vs_pas)
+summary(back_env$lm_max_pct_vs_pas)
 ```
 
 ### Space Activity
@@ -246,10 +214,10 @@ scatter\_max\_pct\_vs\_spaces.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
 ggplotly(
-  plot_max_pct_vs_spaces +
+  back_env$plot_max_pct_vs_spaces +
     scale_y_continuous(labels = percent)
 )
-summary(lm_max_pct_vs_spaces)
+summary(back_env$lm_max_pct_vs_spaces)
 ```
 
 ### Content Progress
@@ -259,10 +227,10 @@ scatter\_max\_pct\_vs\_content_progress.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
 ggplotly(
-  plot_max_pct_vs_content_progress +
+  back_env$plot_max_pct_vs_content_progress +
     scale_y_continuous(labels = percent)
 )
-summary(lm_max_pct_vs_content_progress)
+summary(back_env$lm_max_pct_vs_content_progress)
 ```
 
 ## Fundraising amount (relative to goal) is not correlated to assessment responses
@@ -273,9 +241,9 @@ The underlying data for this chart can be found in
 scatter\_pct\_goal\_vs\_hand.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-plot_pct_goal_vs_hand_no_zeros +
+back_env$plot_pct_goal_vs_hand_no_zeros +
   scale_y_continuous(labels = percent)
-summary(lm_pct_goal_vs_hand_no_zeros)
+summary(back_env$lm_pct_goal_vs_hand_no_zeros)
 ```
 
 ### Heart
@@ -284,9 +252,9 @@ The underlying data for this chart can be found in
 scatter\_pct\_goal\_vs\_heart.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-plot_pct_goal_vs_heart_no_zeros +
+back_env$plot_pct_goal_vs_heart_no_zeros +
   scale_y_continuous(labels = percent)
-summary(lm_pct_goal_vs_heart_no_zeros)
+summary(back_env$lm_pct_goal_vs_heart_no_zeros)
 ```
 
 ### Head
@@ -295,9 +263,9 @@ The underlying data for this chart can be found in
 scatter\_pct\_goal\_vs\_head.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-plot_pct_goal_vs_head_no_zeros +
+back_env$plot_pct_goal_vs_head_no_zeros +
   scale_y_continuous(labels = percent)
-summary(lm_pct_goal_vs_head_no_zeros)
+summary(back_env$lm_pct_goal_vs_head_no_zeros)
 ```
 
 ## Assessment Volatility Through Time
@@ -309,7 +277,7 @@ Volatility is calculated as the standard deviation of assessment responses
 within each given week.
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(plot_h3_vol)
+ggplotly(back_env$plot_h3_vol)
 ```
 
 ## Retention Curve
@@ -318,5 +286,5 @@ The underlying data for this chart can be found in
 retention_curve_data.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(plot_retention_curve)
+ggplotly(back_env$plot_retention_curve)
 ```

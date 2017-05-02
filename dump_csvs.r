@@ -1,3 +1,12 @@
+# Set time interval for retention curves 
+source("./option_list.r")
+opt <- parse_args(OptionParser(option_list = option_list))
+param_time_interval <- opt$timeint
+param_user_set_result_directory_name <- opt$usersetcsvdir
+param_sess_dur_data_query_name <- opt$sessqueryname
+param_efficiency_analysis_threshold_week <- opt$effthreshweek
+param_efficiency_analysis_threshold_pct <- opt$effthreshpct
+
 source("./presentation_backend.r")
 csv_directory_name <- "csvs"
 
@@ -68,14 +77,10 @@ write.csv(
   , row.names = F
 )
 
-
-thresh <- .5
-max_pct_vs_on_platform_all
-time_frame <- 26
-
 time_to_threshold_hist_data <- get_time_to_threshold_hist_data(
   wide_data
-  , thresh
+  , param_efficiency_analysis_threshold_pct
+  , timeframe = param_efficiency_analysis_threshold_week
 )
 plot_time_to_threshold <- plot_time_to_threshold_hist_data(
   time_to_threshold_hist_data

@@ -1,25 +1,36 @@
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
-library(rpart)
-library(plotly)
-library(stats4)
-library(tidyr)
-library(plyr)
-library(dplyr)
-library(ggplot2)
-library(scales)
-library(broom)
-library(extraDistr)
-library(zoo)
+suppressMessages(library(optparse))
+suppressMessages(library(rpart))
+suppressMessages(library(plotly))
+suppressMessages(library(stats4))
+suppressMessages(library(tidyr))
+suppressMessages(library(plyr))
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(scales))
+suppressMessages(library(broom))
+suppressMessages(library(extraDistr))
+suppressMessages(library(zoo))
 glootility::connect_to_redshift()
 source("./retention_curve_functions.r")
+source("./option_list.r")
+source("./option_list.r")
 
-time_interval <- "month" # "week" or "month"
-sess_dur_data_query_path <- paste(
+opt <- parse_args(OptionParser(option_list = option_list))
+
+time_interval <- opt$timeint # "week" or "month"
+sess_dur_data_query_path <- paste0(
   proj_root
-  , "sess_dur_data.sql"
-  , sep = "/"
+  , "/"
+  , opt$sessqueryname
+  , ".sql"
 )
-sess_dur_data_result_path <- paste(proj_root, "sess_dur_data.csv", sep = "/")
+sess_dur_data_result_path <- paste0(
+  proj_root
+  , "/"
+  , opt$sessqueryname
+  , ".csv"
+)
 
 # Get session duration data query results and write results to a directory
 
