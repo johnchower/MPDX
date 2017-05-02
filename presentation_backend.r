@@ -82,108 +82,6 @@ funds_raised_per_week_summary_stats <- funds_vs_pas_all %>%
     avg_funds_raised_per_week = mean(funds_raised)
   )
 
-# Explore correlation between time and fundraising success (do people do better
-# after they've had some experience? Do they do better immediately after they
-# attended their class?)
-
-funds_vs_time <- wide_data %>%
-  filter(nst_session %in% c("1318", "1526", "2798")
-         , days_since_class >= 0
-         ) %>%
-  mutate(on_platform = ifelse(on_platform
-                              , "On Platform"
-                              , "Off Platform")
-         )
-funds_vs_time_plot <- funds_vs_time %>%
-  ggplot(aes(x = days_since_class / 7
-             , y = NEW_MONTHLY_A
-             , color = nst_session
-             )
-         ) +
-  geom_point(alpha = .5) +
-  stat_smooth(method = "lm") +
-  ggtitle("Funds Raised Per Week vs Time") +
-  ggthemes::theme_tufte()
-
-contacts_vs_time <- wide_data %>%
-  filter(nst_session %in% c("1318", "1526", "2798")
-         , days_since_class >= 0
-         ) %>%
-  mutate(on_platform = ifelse(on_platform
-                              , "On Platform"
-                              , "Off Platform")
-         )
-contacts_vs_time_plot <- contacts_vs_time %>%
-  ggplot(aes(x = days_since_class / 7
-             , y = people_talked_to
-             , color = nst_session
-             )
-         ) +
-  geom_point(alpha = .5) +
-  stat_smooth(method = "lm") +
-  ggtitle("Contacts Made Per Week vs Time") +
-  ggthemes::theme_tufte()
-
-######
-# This stuff needs work
-######
-funds_per_contact_vs_time <- wide_data %>%
-  filter(nst_session %in% c("1318", "1526", "2798")
-         , days_since_class >= 0
-         , people_talked_to > 0
-         ) %>%
-  mutate(on_platform = ifelse(on_platform
-                              , "On Platform"
-                              , "Off Platform")
-         , funds_per_contact = NEW_MONTHLY_A / people_talked_to
-         )
-funds_per_contact_vs_time_plot <- funds_per_contact_vs_time %>%
-  ggplot(aes(x = days_since_class / 7
-             , y = funds_per_contact
-             , color = nst_session
-             )
-         ) +
-  geom_point(alpha = .5) +
-  stat_smooth(method = "lm") +
-  ggtitle("Funds Raised Per Contact vs Time") +
-  ggthemes::theme_tufte()
-
-new_pct_vs_time <- wide_data %>%
-  filter(nst_session %in% c("1318", "1526", "2798")
-         , days_since_class >= 0
-         , people_talked_to > 0
-         ) %>%
-  mutate(on_platform = ifelse(on_platform
-                              , "On Platform"
-                              , "Off Platform")
-         )
-new_pct_vs_time_plot <- new_pct_vs_time %>%
-  ggplot(aes(x = days_since_class / 7
-             , y = new_pct_of_goal
-             , color = nst_session
-             )
-         ) +
-  geom_point(alpha = .5) +
-  stat_smooth(method = "lm") +
-  ggtitle("Percent of goal raised vs Time") +
-  ggthemes::theme_tufte()
-
-#######
-
-lm_new_pct_vs_time <- funds_vs_time %>%
-  filter(new_pct_of_goal < Inf) %>% {
-  lm(new_pct_of_goal ~ days_since_class, data = .)
-  }
-lm_funds_vs_time <- funds_vs_time %>% {
-  lm(NEW_MONTHLY_A ~ days_since_class, data = .)
-  }
-lm_funds_per_contact_vs_time <- funds_per_contact_vs_time %>% {
-  lm(funds_per_contact ~ days_since_class, data = .)
-  }
-lm_contacts_vs_time <- contacts_vs_time %>% {
-  lm(people_talked_to ~ days_since_class, data = .)
-  }
-
 # Explore correlation between assessment responses and percent of goal.
 
 plot_pct_goal_vs_hand_no_zeros <- wide_data %>%
@@ -275,6 +173,7 @@ pct_ever_reached <- user_reached_goal %>%
   group_by(gloo_cohort) %>%
   summarise(pct_will_succeed = mean(eventually_reached_goal))
 
+# User success plots
 user_success_plot_gloo <- user_success_pct %>%
   filter(gloo_cohort) %>%
   make_user_success_plot(
