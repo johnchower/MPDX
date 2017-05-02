@@ -13,10 +13,24 @@ option_list <- list(
     , help = "The directory to place user set sql queries [default %default]"
   ),
   make_option(
+    "--effthreshweek"
+    , type = "numeric"
+    , default = 26
+    , help = "The number of weeks before the efficiency analysis cutoff
+        [default %default]"
+  ),
+  make_option(
     "--sessqueryname"
     , type = "character"
     , default = "sess_dur_data"
     , help = "The name of the session duration query. [default %default]"
+  ),
+  make_option(
+    "--effthreshpct"
+    , type = "numeric"
+    , default = 1
+    , help = "The funds raised percentage cutoff for the efficiency analysis
+        [default %default]"
   ),
   make_option(
     "--timeint"

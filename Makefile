@@ -1,5 +1,7 @@
 # retention_curve_time_interval can be either "month" or "week"
 retention_curve_time_interval := month
+efficiency_analysis_threshold_week := 26
+efficiency_analysis_threshold_pct := .05
 user_set_query_directory := user_set_queries
 user_set_result_directory := user_sets
 sess_dur_data_query_name := sess_dur_data
@@ -16,7 +18,7 @@ report_plus_csvs.zip: csvs.zip presentation.html
 csvs.zip: presentation_backend.r dump_csvs.r mpd_stats_wide_3.csv presentation_functions.r $(user_set_result_directory).zip $(sess_dur_data_query_name).csv
 	unzip $(user_set_result_directory).zip; \
 	mkdir csvs; \
-	Rscript dump_csvs.r --timeint $(retention_curve_time_interval) --usersetcsvdir $(user_set_result_directory) --sessqueryname $(sess_dur_data_query_name); \
+	Rscript dump_csvs.r --timeint $(retention_curve_time_interval) --usersetcsvdir $(user_set_result_directory) --sessqueryname $(sess_dur_data_query_name) --effthreshpct $(efficiency_analysis_threshold_pct) --effthreshweek $(efficiency_analysis_threshold_week); \
 	rm -rf $(user_set_result_directory); \
 	zip -r csvs.zip csvs; \
 	rm -rf csvs
@@ -24,7 +26,7 @@ csvs.zip: presentation_backend.r dump_csvs.r mpd_stats_wide_3.csv presentation_f
 presentation.html: presentation_backend.r mpd_stats_wide_3.csv presentation.rmd retention_curve_functions.r $(user_set_result_directory).zip $(sess_dur_data_query_name).csv presentation_functions.r
 	unzip $(user_set_result_directory).zip; \
 	# Add parameters to the render function call
-	Rscript -e 'rmarkdown::render("presentation.rmd", output_format = "html_document", output_file = "presentation.html", params = list(timeint = "$(retention_curve_time_interval)", sessqueryname = "$(sess_dur_data_query_name)", usersetcsvdir = "$(user_set_result_directory)"))'; \
+	Rscript -e 'rmarkdown::render("presentation.rmd", output_format = "html_document", output_file = "presentation.html", params = list(timeint = "$(retention_curve_time_interval)", sessqueryname = "$(sess_dur_data_query_name)", usersetcsvdir = "$(user_set_result_directory)", effthreshweek = $(efficiency_analysis_threshold_week), effthreshpct = $(efficiency_analysis_threshold_pct)))'; \
 	rm -rf $(user_set_result_directory)
 
 USERQS = $(wildcard $(user_set_query_directory)/*)
