@@ -1,5 +1,5 @@
-library(dplyr)
-library(ggplot2)
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
 
 calculate_pa_scatter_data <- function(wideData){
   wideData %>%

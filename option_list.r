@@ -1,4 +1,4 @@
-library(optparse)
+suppressMessages(library(optparse))
 option_list <- list(
   make_option(
     "--usersetcsvdir"

@@ -11,7 +11,7 @@ params:
 ---
 
 ```{r preamble, echo=F, message=F, warning = F, error = F}
-library(scales)
+suppressMessages(library(scales))
 back_env <- new.env()
 timeint <- params$timeint
 timeint_chr <- ifelse(

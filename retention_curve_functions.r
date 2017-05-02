@@ -2,8 +2,8 @@
 # LOAD PACKAGES
 #####
 
-library(dplyr)
-library(zoo)
+suppressMessages(library(dplyr))
+suppressMessages(library(zoo))
 
 diff_months <- function(
   date1

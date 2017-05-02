@@ -1,4 +1,4 @@
-library(dplyr)
+suppressMessages(library(dplyr))
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 glootility::connect_to_redshift()
 
