@@ -38,6 +38,6 @@ inner join public.user_dimensions ud
 ON ud.id = ubtc.user_id
 WHERE ud.account_type != 'Internal User'
 )
-SELECT *
+SELECT DISTINCT user_id
 FROM results
 ;
