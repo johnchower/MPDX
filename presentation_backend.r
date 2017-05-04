@@ -1,15 +1,8 @@
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
-suppressMessages(library(rpart))
-suppressMessages(library(plotly))
-suppressMessages(library(stats4))
-suppressMessages(library(tidyr))
-suppressMessages(library(plyr))
-suppressMessages(library(dplyr))
 suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
 suppressMessages(library(scales))
-suppressMessages(library(broom))
-suppressMessages(library(extraDistr))
-suppressMessages(library(zoo))
 source("./presentation_functions.r", local = T)
 source("./retention_curve_functions.r", local = T)
 
@@ -21,7 +14,7 @@ wide_data <- read.csv(
 
 funds_vs_pas_all <- wide_data %>%
   calculate_pa_scatter_data %>%
-  mutate(post_gloo = nst_session %in% c("1318", "1526", "2798"))
+  dplyr::mutate(post_gloo = nst_session %in% c("1318", "1526", "2798"))
 
 funds_vs_pas <- wide_data %>%
   filter(nst_session %in% c("1318", "1526", "2798")) %>%

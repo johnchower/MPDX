@@ -1,20 +1,10 @@
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
-suppressMessages(library(rpart))
-suppressMessages(library(plotly))
-suppressMessages(library(stats4))
-suppressMessages(library(tidyr))
-suppressMessages(library(plyr))
 suppressMessages(library(dplyr))
-suppressMessages(library(ggplot2))
-suppressMessages(library(scales))
-suppressMessages(library(broom))
-suppressMessages(library(extraDistr))
-suppressMessages(library(zoo))
 glootility::connect_to_redshift()
 source("./retention_curve_functions.r")
 source("./option_list.r")
 
-opt <- parse_args(OptionParser(option_list = option_list))
+opt <- optparse::parse_args(optparse::OptionParser(option_list = option_list))
 
 time_interval <- opt$timeint
 user_set_query_directory <- paste(proj_root, opt$usersetqdir, sep = "/")

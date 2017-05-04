@@ -3,8 +3,8 @@ suppressMessages(library(ggplot2))
 
 calculate_pa_scatter_data <- function(wideData){
   wideData %>%
-    group_by(EMAIL_ADDR, nst_session) %>%
-    summarise(num_weeks = length(unique(REPORT_DATE))
+    dplyr::group_by(EMAIL_ADDR, nst_session) %>%
+    dplyr::summarise(num_weeks = length(unique(REPORT_DATE))
               , funds_raised = sum(NEW_MONTHLY_A) / num_weeks
               , pa_count = sum(pa_count) / num_weeks
               , space_count = sum(space_count) / num_weeks

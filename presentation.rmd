@@ -11,7 +11,7 @@ params:
 ---
 
 ```{r preamble, echo=F, message=F, warning = F, error = F}
-suppressMessages(library(scales))
+suppressMessages(library(dplyr))
 back_env <- new.env()
 timeint <- params$timeint
 timeint_chr <- ifelse(
@@ -73,7 +73,7 @@ goal. But among users who hadn't reached their goal by week `r cutoff_week`,
 only `r round(100 * pct_reached_after_cutoff, 1)` % will ever reach their goal.
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(back_env$user_success_plot_gloo)
+plotly::ggplotly(back_env$user_success_plot_gloo)
 ```
 
 ### Probability of attaining fundraising goal, all users.
@@ -102,7 +102,7 @@ goal. But among users who hadn't reached their goal by week `r cutoff_week`,
 only `r round(100 * pct_reached_after_cutoff, 1)` % will ever reach their goal.
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(back_env$user_success_plot_non_gloo)
+plotly::ggplotly(back_env$user_success_plot_non_gloo)
 ```
 
 
@@ -200,9 +200,9 @@ The underlying data for this chart can be found in
 scatter\_max\_pct\_vs\_pas.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-ggplotly(
+plotly::ggplotly(
   back_env$plot_max_pct_vs_pas +
-    scale_y_continuous(labels = percent)
+    ggplot2::scale_y_continuous(labels = percent)
 )
 summary(back_env$lm_max_pct_vs_pas)
 ```
@@ -213,9 +213,9 @@ The underlying data for this chart can be found in
 scatter\_max\_pct\_vs\_spaces.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-ggplotly(
+plotly::ggplotly(
   back_env$plot_max_pct_vs_spaces +
-    scale_y_continuous(labels = percent)
+    ggplot2::scale_y_continuous(labels = percent)
 )
 summary(back_env$lm_max_pct_vs_spaces)
 ```
@@ -226,9 +226,9 @@ The underlying data for this chart can be found in
 scatter\_max\_pct\_vs\_content_progress.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-ggplotly(
+plotly::ggplotly(
   back_env$plot_max_pct_vs_content_progress +
-    scale_y_continuous(labels = percent)
+    ggplot2::scale_y_continuous(labels = percent)
 )
 summary(back_env$lm_max_pct_vs_content_progress)
 ```
@@ -242,7 +242,7 @@ scatter\_pct\_goal\_vs\_hand.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 back_env$plot_pct_goal_vs_hand_no_zeros +
-  scale_y_continuous(labels = percent)
+  ggplot2::scale_y_continuous(labels = percent)
 summary(back_env$lm_pct_goal_vs_hand_no_zeros)
 ```
 
@@ -253,7 +253,7 @@ scatter\_pct\_goal\_vs\_heart.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 back_env$plot_pct_goal_vs_heart_no_zeros +
-  scale_y_continuous(labels = percent)
+  ggplot2::scale_y_continuous(labels = percent)
 summary(back_env$lm_pct_goal_vs_heart_no_zeros)
 ```
 
@@ -264,7 +264,7 @@ scatter\_pct\_goal\_vs\_head.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 back_env$plot_pct_goal_vs_head_no_zeros +
-  scale_y_continuous(labels = percent)
+  ggplot2::scale_y_continuous(labels = percent)
 summary(back_env$lm_pct_goal_vs_head_no_zeros)
 ```
 
@@ -277,7 +277,7 @@ Volatility is calculated as the standard deviation of assessment responses
 within each given week.
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(back_env$plot_h3_vol)
+plotly::ggplotly(back_env$plot_h3_vol)
 ```
 
 ## Retention Curve
@@ -286,5 +286,5 @@ The underlying data for this chart can be found in
 retention_curve_data.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
-ggplotly(back_env$plot_retention_curve)
+plotly::ggplotly(back_env$plot_retention_curve)
 ```

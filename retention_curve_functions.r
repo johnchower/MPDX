@@ -11,7 +11,7 @@ diff_months <- function(
 ){
     as.numeric(
       round(
-        12 * (as.yearmon(date1) - as.yearmon(date2))
+        12 * (zoo::as.yearmon(date1) - zoo::as.yearmon(date2))
       )
     )
 }
