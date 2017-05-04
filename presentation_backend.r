@@ -8,13 +8,13 @@ source("./retention_curve_functions.r", local = T)
 
 wide_data <- read.csv(
   paste(proj_root, "mpd_stats_wide_3.csv", sep = "/")
-  , stringsAsFactors = F
-  ) %>%
+, stringsAsFactors = F
+) %>%
   mutate(nst_session = as.character(nst_session))
 
 funds_vs_pas_all <- wide_data %>%
   calculate_pa_scatter_data %>%
-  dplyr::mutate(post_gloo = nst_session %in% c("1318", "1526", "2798"))
+  mutate(post_gloo = nst_session %in% c("1318", "1526", "2798"))
 
 funds_vs_pas <- wide_data %>%
   filter(nst_session %in% c("1318", "1526", "2798")) %>%
@@ -25,45 +25,45 @@ funds_vs_pas <- wide_data %>%
 plot_max_pct_vs_pas <- funds_vs_pas %>%
   make_pa_scatter_plot(
     pa_type = "pa_count"
-    , plot_title = "Percentage of goal reached vs. Platform Actions Per Week"
+  , plot_title = "Percentage of goal reached vs. Platform Actions Per Week"
   )
 lm_max_pct_vs_pas <- funds_vs_pas %>%
   filter(max_total_pct_of_goal < Inf) %>% {
   lm(max_total_pct_of_goal ~ pa_count, data = .)
-}
+  }
 
 plot_max_pct_vs_spaces <- funds_vs_pas %>%
   make_pa_scatter_plot(
     pa_type = "space_count"
-    , plot_title = "Percentage of goal reached vs. Platform Actions Per Week"
+  , plot_title = "Percentage of goal reached vs. Platform Actions Per Week"
   )
 lm_max_pct_vs_spaces <- funds_vs_pas %>%
   filter(max_total_pct_of_goal < Inf) %>% {
   lm(max_total_pct_of_goal ~ space_count, data = .)
-}
+  }
 
 plot_max_pct_vs_content_progress <- funds_vs_pas %>%
   make_pa_scatter_plot(
     pa_type = "content_progress_count"
-    , plot_title = "Percentage of goal reached vs. Platform Actions Per Week"
+  , plot_title = "Percentage of goal reached vs. Platform Actions Per Week"
   )
 lm_max_pct_vs_content_progress <- funds_vs_pas %>%
   filter(max_total_pct_of_goal < Inf) %>% {
   lm(max_total_pct_of_goal ~ content_progress_count, data = .)
-}
+  }
 
 # Histograms
 funds_raised_vs_on_platform_all <- funds_vs_pas_all %>%
   make_performance_histogram(
     performanceStatistic = "funds_raised"
-    , binWidth = 50
+  , binWidth = 50
   )
 
 max_pct_vs_on_platform_all <- funds_vs_pas_all %>%
   filter(max_total_pct_of_goal < 1.5) %>%
   make_performance_histogram(
     performanceStatistic = "max_total_pct_of_goal"
-    , binWidth = .1
+  , binWidth = .1
   ) +
   scale_x_continuous(labels = percent)
 
@@ -81,11 +81,11 @@ plot_pct_goal_vs_hand_no_zeros <- wide_data %>%
   filter(hand != 0) %>%
   plot_metric_vs_assessment(
     assessment = "hand"
-    , plot_title = "Portion of Goal Met vs hand Assessment Responses"
+  , plot_title = "Portion of Goal Met vs hand Assessment Responses"
   )
 lm_pct_goal_vs_hand_no_zeros <- wide_data %>%
   filter(hand != 0) %>% {
-    lm(new_pct_of_goal ~ hand, data = .)
+  lm(new_pct_of_goal ~ hand, data = .)
   }
 
 plot_pct_goal_vs_heart_no_zeros <- wide_data %>%
@@ -93,11 +93,11 @@ plot_pct_goal_vs_heart_no_zeros <- wide_data %>%
   filter(heart != 0) %>%
   plot_metric_vs_assessment(
     assessment = "heart"
-    , plot_title = "Portion of Goal Met vs heart Assessment Responses"
+  , plot_title = "Portion of Goal Met vs heart Assessment Responses"
   )
 lm_pct_goal_vs_heart_no_zeros <- wide_data %>%
   filter(heart != 0) %>% {
-    lm(new_pct_of_goal ~ heart, data = .)
+  lm(new_pct_of_goal ~ heart, data = .)
   }
 
 plot_pct_goal_vs_head_no_zeros <- wide_data %>%
@@ -105,11 +105,11 @@ plot_pct_goal_vs_head_no_zeros <- wide_data %>%
   filter(head != 0) %>%
   plot_metric_vs_assessment(
     assessment = "head"
-    , plot_title = "Portion of Goal Met vs head Assessment Responses"
+  , plot_title = "Portion of Goal Met vs head Assessment Responses"
   )
 lm_pct_goal_vs_head_no_zeros <- wide_data %>%
   filter(head != 0) %>% {
-    lm(new_pct_of_goal ~ head, data = .)
+  lm(new_pct_of_goal ~ head, data = .)
   }
 
 # Produce actionable stats 
@@ -127,9 +127,10 @@ user_day_reached_goal <- wide_data %>%
   summarise(
     day_reached_goal = ifelse(
       sum(total_pct_of_goal >= 1) > 0
-      , min(days_since_class[total_pct_of_goal >= 1])
-      , Inf
-  ))
+    , min(days_since_class[total_pct_of_goal >= 1])
+    , Inf
+    )
+  )
 user_day_seq <- user_age %>%
   group_by(EMAIL_ADDR) %>%
   do({
@@ -151,13 +152,13 @@ user_success_pct <- user_day_seq %>%
   group_by(days_since_class, gloo_cohort) %>%
   summarise(
     pct_remaining = 1 - mean(reached_goal_yet)
-    , pct_will_succeed = mean(eventually_reached_goal[!reached_goal_yet])
+  , pct_will_succeed = mean(eventually_reached_goal[!reached_goal_yet])
   ) %>%
   gather(
     key = "variable"
-    , value = "value"
-    , -days_since_class
-    , -gloo_cohort
+  , value = "value"
+  , -days_since_class
+  , -gloo_cohort
   )
 
 pct_ever_reached <- user_reached_goal %>%
@@ -182,16 +183,16 @@ user_success_plot_non_gloo <- user_success_pct %>%
 h3_vol <- wide_data %>%
   filter(
     nst_session %in% c("1318", "1526", "2798")
-    , days_since_class >= 0
+  , days_since_class >= 0
   ) %>%
   select(days_since_class, nst_session, hand, head, heart) %>%
   mutate(weeks_since_class = days_since_class / 7) %>%
   select(-days_since_class) %>%
   gather(
     key = "assessment"
-    , value = "response"
-    , -weeks_since_class
-    , -nst_session
+  , value = "response"
+  , -weeks_since_class
+  , -nst_session
   ) %>%
   filter(!is.na(response), response != 0) %>%
   group_by(nst_session, weeks_since_class, assessment) %>%
@@ -201,9 +202,10 @@ plot_h3_vol <- h3_vol %>%
   ggplot(
     aes(
       x = weeks_since_class
-      , y = volatility
-      , color = nst_session
-  )) +
+    , y = volatility
+    , color = nst_session
+    )
+  ) +
   facet_grid(assessment ~ .) +
   geom_point() +
   stat_smooth(method = "loess") +
@@ -212,21 +214,21 @@ plot_h3_vol <- h3_vol %>%
 ########
 time_to_threshold_hist_data <- get_time_to_threshold_hist_data(
   wide_data
-  , param_efficiency_analysis_threshold_pct
-  , timeframe = param_efficiency_analysis_threshold_week
+, param_efficiency_analysis_threshold_pct
+, timeframe = param_efficiency_analysis_threshold_week
 )
 plot_time_to_threshold <- plot_time_to_threshold_hist_data(
   time_to_threshold_hist_data
-  , binwidth = 1
+, binwidth = 1
 ) +
   scale_x_continuous(
     breaks = c(
       `0` = 0
-      , `5` = 5
-      , `10` = 10
-      , `20` = 20
-      , `25` = 25
-      , `    > 25` = 26
+    , `5` = 5
+    , `10` = 10
+    , `20` = 20
+    , `25` = 25
+    , `    > 25` = 26
     )
   )
 pct_past_timeframe_data  <- time_to_threshold_hist_data %>%
@@ -242,31 +244,31 @@ pct_gloo_users_past_timeframe <- pct_past_timeframe_data %>%
   filter(
     gloo_cohort
   ) %>% {
-    .$pct_past_timeframe
+  .$pct_past_timeframe
   }
 pct_other_users_past_timeframe <- pct_past_timeframe_data %>%
   filter(
     !gloo_cohort
   ) %>% {
-    .$pct_past_timeframe
+  .$pct_past_timeframe
   }
 avg_time_to_thresh_gloo <- time_to_threshold_hist_data %>%
   filter(
     gloo_cohort
-    , weeks_to_threshold <=
-        (param_efficiency_analysis_threshold_week - 1)
+  , weeks_to_threshold <=
+      (param_efficiency_analysis_threshold_week - 1)
   ) %>%
   summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
-    .$avg_time_to_thresh
+  .$avg_time_to_thresh
   }
 avg_time_to_thresh_other <- time_to_threshold_hist_data %>%
   filter(
     !gloo_cohort
-    , weeks_to_threshold <=
-        (param_efficiency_analysis_threshold_week - 1)
+  , weeks_to_threshold <=
+      (param_efficiency_analysis_threshold_week - 1)
   ) %>%
   summarise(avg_time_to_thresh = mean(weeks_to_threshold)) %>% {
-    .$avg_time_to_thresh
+  .$avg_time_to_thresh
   }
 #######
 
@@ -278,17 +280,18 @@ user_set_result_directory <-
 user_set_result_directory_contents <- dir(user_set_result_directory)
 user_set_result_directory_contents_noext <- gsub(
   pattern = ".csv"
-  , replacement = ""
-  , x = user_set_result_directory_contents
+, replacement = ""
+, x = user_set_result_directory_contents
 )
 
 sess_dur_data <- read.csv(
   paste0(
     proj_root
-    , "/"
-    , param_sess_dur_data_query_name
-    , ".csv"
-))
+  , "/"
+  , param_sess_dur_data_query_name
+  , ".csv"
+  )
+)
 
 user_set_query_results <- user_set_result_directory_contents %>%
   lapply(function(csv_name){
@@ -319,12 +322,12 @@ retention_curve_data_list <- user_set_query_results %>%
       }
     retention_curve_data_current <- create_retention_curve_data(
       user_set_current
-      , sess_dur_data
-      , time_interval = param_time_interval
+    , sess_dur_data
+    , time_interval = param_time_interval
     )
     current_row_count <- nrow(retention_curve_data_current)
     cbind(retention_curve_data_current
-       , data.frame(user_group = rep(name, times = current_row_count))
+     , data.frame(user_group = rep(name, times = current_row_count))
        )
   })
 

@@ -13,15 +13,9 @@ params:
 ```{r preamble, echo=F, message=F, warning = F, error = F}
 suppressMessages(library(dplyr))
 back_env <- new.env()
-timeint <- params$timeint
-timeint_chr <- ifelse(
-  params$timeint == "week"
-  , "week"
-  , "month"
-)
 back_env$param_efficiency_analysis_threshold_pct <- params$effthreshpct
 back_env$param_efficiency_analysis_threshold_week <- params$effthreshweek
-back_env$param_time_interval <- timeint_chr
+back_env$param_time_interval <- params$timeint
 back_env$param_user_set_result_directory_name <- params$usersetcsvdir
 back_env$param_sess_dur_data_query_name <- params$sessqueryname
 sys.source("./presentation_backend.r", envir = back_env)
@@ -57,8 +51,8 @@ cutoff_week <- 14
 pct_reached_after_cutoff <- back_env$user_success_pct %>%
   filter(
     days_since_class == cutoff_week * 7
-    , gloo_cohort
-    , variable == "pct_will_succeed"
+  , gloo_cohort
+  , variable == "pct_will_succeed"
   ) %>% {
     .$value
   }
@@ -86,8 +80,8 @@ cutoff_week <- 14
 pct_reached_after_cutoff <- back_env$user_success_pct %>%
   filter(
     days_since_class == cutoff_week * 7
-    , !gloo_cohort
-    , variable == "pct_will_succeed"
+  , !gloo_cohort
+  , variable == "pct_will_succeed"
   ) %>% {
     .$value
   }
@@ -143,7 +137,7 @@ bar\_chart\_pct\_goal\_attained.csv
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
 max_pct_summary_stats <- back_env$get_max_pct_summary_stats(
   back_env$funds_vs_pas_all
-  , back_env$param_efficiency_analysis_threshold_pct
+, back_env$param_efficiency_analysis_threshold_pct
 )
 pct_reached_nongloo <- max_pct_summary_stats %>%
   filter(post_gloo == "Before Gloo") %>% {
