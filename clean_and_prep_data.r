@@ -12,7 +12,6 @@ suppressMessages(library(broom))
 suppressMessages(library(extraDistr))
 suppressMessages(library(data.table))
 source(file = "./interpolate_goals.r")
-glootility::connect_to_redshift()
 
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 
