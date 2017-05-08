@@ -7,19 +7,19 @@ suppressMessages(library(zoo))
 
 diff_months <- function(
   date1
-  , date2
+, date2
 ){
     as.numeric(
       round(
-        12 * (as.yearmon(date1) - as.yearmon(date2))
+        12 * (zoo::as.yearmon(date1) - zoo::as.yearmon(date2))
       )
     )
 }
 
 get_user_age <- function(
   sessDurData
-  , runDate = Sys.Date()
-  , time_interval = "week"
+, runDate = Sys.Date()
+, time_interval = "week"
 ){
   if (time_interval == "week"){
     week_before_start <- seq.Date(from = runDate - 6, to = runDate, by = 1)
@@ -38,7 +38,7 @@ get_user_age <- function(
       summarise(
         age = diff_months(
           start_month_beginning
-          , min(active_month_start_date)
+        , min(active_month_start_date)
         )
       )
   }
@@ -47,8 +47,8 @@ get_user_age <- function(
 
 create_rel_sess_dur_data <- function(
   sessDurData
-  , runDate = Sys.Date()
-  , time_interval = "week"
+, runDate = Sys.Date()
+, time_interval = "week"
 ){
   if (time_interval == "week"){
     out <- sessDurData %>%
@@ -65,7 +65,7 @@ create_rel_sess_dur_data <- function(
       mutate(
         months_since_signup = diff_months(
           active_month_start_date
-          , min(active_month_start_date))
+        , min(active_month_start_date))
         )
   }
   return(out)
@@ -73,10 +73,10 @@ create_rel_sess_dur_data <- function(
 
 create_retention_curve_data <- function(
   userSet
-  , sessDurData
-  , runDate = Sys.Date()
-  , userAges = user_ages
-  , time_interval = "week"
+, sessDurData
+, runDate = Sys.Date()
+, userAges = user_ages
+, time_interval = "week"
 ){
   if (time_interval == "week"){
     filtered_data <- sessDurData %>%
@@ -92,15 +92,15 @@ create_retention_curve_data <- function(
     num_users_by_age <- num_users_by_age0 %>% {
       left_join(
         data.frame(weeks_since_signup = 0:max_age)
-        , .
-        , by = "weeks_since_signup"
+      , .
+      , by = "weeks_since_signup"
       )
       } %>%
       mutate(
         number_of_users_this_age = ifelse(
           is.na(number_of_users_this_age)
-          , 0
-          , number_of_users_this_age
+        , 0
+        , number_of_users_this_age
         )
       ) %>%
       arrange(desc(weeks_since_signup)) %>%
@@ -110,7 +110,8 @@ create_retention_curve_data <- function(
       left_join(num_users_by_age, by = "weeks_since_signup") %>%
       group_by(weeks_since_signup) %>%
       summarise(
-        pct_active = length( unique(user_id)) /
+        pct_active =
+          length( unique(user_id)) /
           mean(number_of_users_past_this_age)
       )
   } else if (time_interval == "month"){
@@ -127,15 +128,15 @@ create_retention_curve_data <- function(
     num_users_by_age <- num_users_by_age0 %>% {
       left_join(
         data.frame(months_since_signup = 0:max_age)
-        , .
-        , by = "months_since_signup"
+      , .
+      , by = "months_since_signup"
       )
       } %>%
       mutate(
         number_of_users_this_age = ifelse(
           is.na(number_of_users_this_age)
-          , 0
-          , number_of_users_this_age
+        , 0
+        , number_of_users_this_age
         )
       ) %>%
       arrange(desc(months_since_signup)) %>%
@@ -145,7 +146,8 @@ create_retention_curve_data <- function(
       left_join(num_users_by_age, by = "months_since_signup") %>%
       group_by(months_since_signup) %>%
       summarise(
-        pct_active = length(unique(user_id)) /
+        pct_active =
+          length(unique(user_id)) /
           mean(number_of_users_past_this_age)
       )
   }

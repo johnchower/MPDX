@@ -9,11 +9,11 @@ user_pacount_week_query <-
   paste(collapse = " ")
 user_pacount_week <- RPostgreSQL::dbGetQuery(
   conn = redshift_connection$con
-  , statement = user_pacount_week_query
-  )
+, statement = user_pacount_week_query
+)
 
 write.csv(
   user_pacount_week
-  , file = paste(proj_root, "user_pacount_week.csv", sep = "/")
-  , row.names = F
+, file = paste(proj_root, "user_pacount_week.csv", sep = "/")
+, row.names = F
 )
