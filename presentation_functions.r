@@ -101,6 +101,7 @@ get_time_to_threshold_hist_data <- function(
 , timeframe = 26 # weeks
 , userNST = user_nst_session
 , userAge = user_age
+, filterByAge = T
 ){
   wd %>%
     filter(days_since_class >= 0) %>%
@@ -119,8 +120,12 @@ get_time_to_threshold_hist_data <- function(
     mutate(weeks_to_threshold = time_to_threshold / 7) %>%
     select(-time_to_threshold) %>%
     left_join(userNST, by = "EMAIL_ADDR") %>%
-    left_join(userAge, by = "EMAIL_ADDR") %>%
-    filter(age_days / 7 >= timeframe) %>%
+    left_join(userAge, by = "EMAIL_ADDR") %>% {
+      if (filterByAge){
+        out <- filter(., age_days / 7 >= timeframe)
+      } else {out <- .}
+      return(out)
+    } %>%
     mutate(
       weeks_to_threshold = ifelse(
         weeks_to_threshold >= timeframe

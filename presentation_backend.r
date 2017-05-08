@@ -216,6 +216,7 @@ time_to_threshold_hist_data <- get_time_to_threshold_hist_data(
   wide_data
 , param_efficiency_analysis_threshold_pct
 , timeframe = param_efficiency_analysis_threshold_week
+, filterByAge = T
 )
 plot_time_to_threshold <- plot_time_to_threshold_hist_data(
   time_to_threshold_hist_data
