@@ -17,3 +17,4 @@ env_test*
 packrat/src/
 csvs/*
 report_plus_csvs/*
+data.zip
