@@ -19,5 +19,5 @@ ON sdf.date_id = dd.id
 GROUP BY ud.id, dd.calendar_year_month
 )
 SELECT *
-FROM results_xyz_time_interval_xyz
+FROM results_month
 ;
