@@ -1,7 +1,7 @@
 # Random comment to rerun everything
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 suppressMessages(library(dplyr))
-source(file = "./interpolate_goals.r")
+source(file = "./lib/interpolate_goals.r")
 
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 
