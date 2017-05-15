@@ -59,4 +59,7 @@ start_over:
 	rm presentation.txt presentation.md Rplots.pdf presentation.html csvs.zip; \
 	rm user_pacount_week.csv report_plus_csvs.zip mpd_stats_wide_3.csv assessment_response.csv
 
+mkfileViz.png: makefile2dot.py Makefile
+	python makefile2dot.py <Makefile |dot -Tpng > mkfileViz.png
+
 .PHONY: start_over csv_inputs
