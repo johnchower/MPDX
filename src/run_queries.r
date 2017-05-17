@@ -1,25 +1,25 @@
+ProjectTemplate::load.project(
+  override.config = list(
+    munging = F
+  , data_loading = F
+  , cache_loading = F
+  , load_libraries = T
+  )
+)
+
 proj_root <- rprojroot::find_root(
   rprojroot::has_dirname("FamilyLifeSegmentation")
 )
 
-suppressMessages(library(dplyr))
-suppressMessages(library(optparse))
-
-if (!interactive()){
-  optionList <-   list(
-    optparse::make_option(
-      opt_str =  "--auth_file_location"
-    , type = "character"
-    , default = ""
-    , help = "Auth file containing database credentials"
-    )
+option_list <- list(
+  optparse::make_option(
+    "--auth_file_location"
+  , type = "character"
+  , default = ""
+  , help = "Path to auth file containing database credentials"
   )
-  opt_parser <- optparse::OptionParser(option_list = optionList)
-  opt <- optparse::parse_args(opt_parser)
-  auth_file_loc <- opt$auth_file_location
-} else {
-  auth_file_loc <- "~/.auth"
-}
+)
+opt <- optparse::parse_args(optparse::OptionParser(option_list = option_list))
 
 csv_directory <- paste0(
   proj_root
@@ -33,8 +33,26 @@ query_directory <- paste0(
   , "queries"
   , "/"
 )
+if (interactive()){
+  auth_file_loc <- "~/.auth/authenticate"
+} else {
+  auth_file_loc <- opt$auth_file_location
+}
 
-glootility::connect_to_redshift(auth_file_location = auth_file_loc)
+print(auth_file_loc)
+auth <- readLines(auth_file_loc)
+
+redshift_connection <- list(
+  con = RPostgreSQL::dbConnect(
+    drv = DBI::dbDriver("PostgreSQL")
+  , dbname = auth[9]
+  , host = auth[10]
+  , port = auth[11]
+  , user = auth[12]
+  , password = auth[13]
+  )
+, drv = DBI::dbDriver("PostgreSQL")
+)
 
 query_list <- query_directory %>% {
   paste0(., dir(.))
@@ -62,9 +80,6 @@ query_results <- glootility::run_query_list(
   queries_to_run
 , connection = redshift_connection$con
 )
-
-print(csv_directory)
-print(names(query_results))
 
 query_results %>%
   names %>%
