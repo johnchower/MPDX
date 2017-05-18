@@ -5,7 +5,7 @@
 suppressMessages(library(dplyr))
 suppressMessages(library(zoo))
 
-diff_months <- function(
+retention_curve_functions.diff_months <- function(
   date1
 , date2
 ){
@@ -16,7 +16,7 @@ diff_months <- function(
     )
 }
 
-get_user_age <- function(
+retention_curve_functions.get_user_age <- function(
   sessDurData
 , runDate = Sys.Date()
 , time_interval = "week"
@@ -36,7 +36,7 @@ get_user_age <- function(
     out <- sessDurData %>%
       group_by(user_id) %>%
       summarise(
-        age = diff_months(
+        age = retention_curve_functions.diff_months(
           start_month_beginning
         , min(active_month_start_date)
         )
@@ -45,7 +45,7 @@ get_user_age <- function(
   return(out)
 }
 
-create_rel_sess_dur_data <- function(
+retention_curve_functions.create_rel_sess_dur_data <- function(
   sessDurData
 , runDate = Sys.Date()
 , time_interval = "week"
@@ -63,7 +63,7 @@ create_rel_sess_dur_data <- function(
     out <- sessDurData %>%
       group_by(user_id) %>%
       mutate(
-        months_since_signup = diff_months(
+        months_since_signup = retention_curve_functions.diff_months(
           active_month_start_date
         , min(active_month_start_date))
         )
@@ -71,10 +71,11 @@ create_rel_sess_dur_data <- function(
   return(out)
 }
 
-create_retention_curve_data <- function(
+retention_curve_functions.create_retention_curve_data <- function(
   userSet
 , sessDurData
 , runDate = Sys.Date()
+, sessqueryname = sess_dur_data
 , userAges = user_ages
 , time_interval = "week"
 ){
@@ -106,7 +107,10 @@ create_retention_curve_data <- function(
       arrange(desc(weeks_since_signup)) %>%
       mutate(number_of_users_past_this_age = cumsum(number_of_users_this_age))
     out <- filtered_data %>%
-      create_rel_sess_dur_data(runDate, time_interval = "week") %>%
+      retention_curve_functions.create_rel_sess_dur_data(
+        runDate
+      , time_interval = "week"
+      ) %>%
       left_join(num_users_by_age, by = "weeks_since_signup") %>%
       group_by(weeks_since_signup) %>%
       summarise(
@@ -142,7 +146,10 @@ create_retention_curve_data <- function(
       arrange(desc(months_since_signup)) %>%
       mutate(number_of_users_past_this_age = cumsum(number_of_users_this_age))
     out <- filtered_data %>%
-      create_rel_sess_dur_data(runDate, time_interval = "month") %>%
+      retention_curve_functions.create_rel_sess_dur_data(
+        runDate
+      , time_interval = "month"
+      ) %>%
       left_join(num_users_by_age, by = "months_since_signup") %>%
       group_by(months_since_signup) %>%
       summarise(

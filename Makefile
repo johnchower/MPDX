@@ -1,4 +1,6 @@
 # retention_curve_time_interval can be either "month" or "week"
+LIB = $(wildcard lib/*)
+MUNGE = $(wildcard munge/*)
 DATA = $(wildcard data/*)
 INPUTDATA = $(wildcard input_data/*)
 USERSETS = $(wildcard data/user_set-*)
@@ -14,7 +16,10 @@ auth_file := ~/.auth/authenticate
 
 # reports/csvs.zip: src/presentation_backend.r lib/retention_curve_functions.r lib/presentation_functions.r data.zip munge.zip
 
-reports/presentation.html: src/presentation_backend.r src/presentation.rmd lib/retention_curve_functions.r lib/presentation_functions.r data.zip munge.zip
+presentation.html: $(LIB) $(MUNGE) data.zip src/presentation_backend.r 
+	unzip data.zip; \
+	Rscript -e 'rmarkdown::render("presentation.rmd", output_format = "html_document", output_file = "presentation.html", params = list(timeint = "$(retention_curve_time_interval)", effthreshweek = $(efficiency_analysis_threshold_week), effthreshpct = $(efficiency_analysis_threshold_pct)))'; \
+	rm -rf data ; \
 
 data.zip: $(QUERIES) $(INPUTDATA) src/run_queries.r
 	mkdir -p data; \

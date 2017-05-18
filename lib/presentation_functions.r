@@ -1,4 +1,4 @@
-calculate_pa_scatter_data <- function(wideData){
+presentation_functions.calculate_pa_scatter_data <- function(wideData){
   wideData %>%
     group_by(EMAIL_ADDR, nst_session) %>%
     summarise(
@@ -14,7 +14,7 @@ calculate_pa_scatter_data <- function(wideData){
     )
 }
 
-make_pa_scatter_plot <- function(
+presentation_functions.make_pa_scatter_plot <- function(
   data_funds_vs_pas
 , pa_type
 , plot_title = ""
@@ -42,7 +42,7 @@ make_pa_scatter_plot <- function(
     ggthemes::theme_tufte()
 }
 
-make_performance_histogram <- function(
+presentation_functions.make_performance_histogram <- function(
   data_funds_vs_pas_all
 , performanceStatistic
 , binWidth
@@ -71,7 +71,7 @@ make_performance_histogram <- function(
     ggthemes::theme_tufte()
 }
 
-get_max_pct_summary_stats <- function(fvpa, threshold){
+presentation_functions.get_max_pct_summary_stats <- function(fvpa, threshold){
   fvpa %>%
     mutate(
       post_gloo = ifelse(
@@ -92,12 +92,12 @@ get_max_pct_summary_stats <- function(fvpa, threshold){
     summarise(pct_reached_threshold = mean(reached_threshold))
 }
 
-get_time_to_threshold_hist_data <- function(
+presentation_functions.get_time_to_threshold_hist_data <- function(
   wd
 , threshold
 , timeframe = 26 # weeks
-, userNST = user_nst_session
-, userAge = user_age
+, userNST = backend.user_nst_session
+, userAge = backend.user_age
 , filterByAge = T
 ){
   wd %>%
@@ -132,7 +132,7 @@ get_time_to_threshold_hist_data <- function(
     )
 }
 
-plot_time_to_threshold_hist_data <- function(
+presentation_functions.plot_time_to_threshold_hist_data <- function(
   ttthd
 , ...
 ){
@@ -161,7 +161,7 @@ plot_time_to_threshold_hist_data <- function(
     ggthemes::theme_tufte()
 }
 
-plot_metric_vs_assessment <- function(
+presentation_functions.plot_metric_vs_assessment <- function(
   wideData
 , performanceStatistic = "new_pct_of_goal"
 , assessment = "hand"
@@ -176,7 +176,7 @@ plot_metric_vs_assessment <- function(
     ggtitle(plot_title)
 }
 
-make_user_success_plot <- function(
+presentation_functions.make_user_success_plot <- function(
   user_success_pct_data
 , max_days_since_class = Inf
 ){

@@ -77,12 +77,12 @@ write.csv(
   , row.names = F
 )
 
-time_to_threshold_hist_data <- get_time_to_threshold_hist_data(
+time_to_threshold_hist_data <- presentation_functions.get_time_to_threshold_hist_data(
   wide_data
   , param_efficiency_analysis_threshold_pct
   , timeframe = param_efficiency_analysis_threshold_week
 )
-plot_time_to_threshold <- plot_time_to_threshold_hist_data(
+plot_time_to_threshold <- presentation_functions.plot_time_to_threshold_hist_data(
   time_to_threshold_hist_data
   , binwidth = 1
 ) +

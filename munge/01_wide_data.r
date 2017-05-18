@@ -1,3 +1,7 @@
+# Formats and cleans the mpd_stats.csv dataset from Cru.
+# Datasets produced:
+# wide_data.wide_data - The result of cleaning mpd_stats.csv
+
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 
 # Load data set
@@ -311,7 +315,7 @@ wide_data_4  <- seq_days_by_nst_session %>%
   )
 
 # Rename final product
-wide_data <- wide_data_3 %>%
+wide_data.wide_data <- wide_data_3 %>%
   mutate(nst_session = as.character(nst_session))
 
 rm(

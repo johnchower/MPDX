@@ -3,9 +3,6 @@ title: MPDX Analysis
 output: html_document
 params:
   timeint: month
-  usersetcsvdir: user_sets
-  usersetqdir: user_set_queries
-  sessqueryname: sess_dur_data
   effthreshpct: 1
   effthreshweek: 26
 ---
@@ -18,7 +15,7 @@ back_env$param_efficiency_analysis_threshold_week <- params$effthreshweek
 back_env$param_time_interval <- params$timeint
 back_env$param_user_set_result_directory_name <- params$usersetcsvdir
 back_env$param_sess_dur_data_query_name <- params$sessqueryname
-sys.source("./presentation_backend.r", envir = back_env)
+sys.source("./src/presentation_backend.r", envir = back_env)
 ```
 # MPDx Fundraising Analysis
 
@@ -48,7 +45,7 @@ line\_probability\_drop\_off.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 cutoff_week <- 14
-pct_reached_after_cutoff <- back_env$user_success_pct %>%
+pct_reached_after_cutoff <- backend.user_success_pct %>%
   filter(
     days_since_class == cutoff_week * 7
   , gloo_cohort
@@ -77,7 +74,7 @@ line\_probability\_drop\_off\_pre\_gloo.csv
 
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 cutoff_week <- 14
-pct_reached_after_cutoff <- back_env$user_success_pct %>%
+pct_reached_after_cutoff <- backend.user_success_pct %>%
   filter(
     days_since_class == cutoff_week * 7
   , !gloo_cohort
@@ -98,7 +95,6 @@ only `r round(100 * pct_reached_after_cutoff, 1)` % will ever reach their goal.
 ```{r, echo=F, message=F, warning = F, fig.width = 8, fig.height = 6}
 plotly::ggplotly(back_env$user_success_plot_non_gloo)
 ```
-
 
 ## Performance Distributions
 
@@ -135,7 +131,7 @@ The underlying data for this graph can be found in
 bar\_chart\_pct\_goal\_attained.csv
 
 ```{r, echo=F, message=F, fig.width = 8, fig.height = 6}
-max_pct_summary_stats <- back_env$get_max_pct_summary_stats(
+max_pct_summary_stats <- presentation_functions.get_max_pct_summary_stats(
   back_env$funds_vs_pas_all
 , back_env$param_efficiency_analysis_threshold_pct
 )
