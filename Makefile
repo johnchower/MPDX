@@ -16,7 +16,7 @@ auth_file := ~/.auth/authenticate
 
 reports/presentation.html: src/presentation_backend.r src/presentation.rmd lib/retention_curve_functions.r lib/presentation_functions.r data.zip munge.zip
 
-data.zip: $(QUERIES) src/run_queries.r $(INPUTDATA)
+data.zip: $(QUERIES) $(INPUTDATA) src/run_queries.r
 	mkdir -p data; \
 	cp input_data/* data/ ;\
 	Rscript ./src/run_queries.r --auth_file_location $(auth_file) ; \
