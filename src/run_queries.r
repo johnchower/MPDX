@@ -39,7 +39,6 @@ if (interactive()){
   auth_file_loc <- opt$auth_file_location
 }
 
-print(auth_file_loc)
 auth <- readLines(auth_file_loc)
 
 redshift_connection <- list(
