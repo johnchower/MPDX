@@ -1,15 +1,8 @@
-mpd_stats_wide_3.csv
 Session.vim
 Rplots.pdf
 presentation.html
-assessment_response.csv
-user_pacount_week.csv
 csvs.zip
 report_plus_csvs.zip
-packrat/lib*/
-packrat/src*/
-nvimcom*
-sess_dur_data.csv
 user_sets.zip
 backend_assignments.r
 env_test*
