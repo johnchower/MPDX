@@ -1,6 +1,3 @@
-suppressMessages(library(dplyr))
-suppressMessages(library(ggplot2))
-
 calculate_pa_scatter_data <- function(wideData){
   wideData %>%
     group_by(EMAIL_ADDR, nst_session) %>%
