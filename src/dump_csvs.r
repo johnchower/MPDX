@@ -1,14 +1,48 @@
+# This script produces csvs containing numbers that are needed to reproduce the
+# plots found in reports/presentation.html
+
+proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
+
+ProjectTemplate::load.project()
+
 # Set time interval for retention curves 
-source("./option_list.r")
+
+option_list <- list(
+  optparse::make_option(
+    "--effthreshweek"
+  , type = "numeric"
+  , default = 26
+  , help = "The number of weeks before the efficiency analysis cutoff
+        [default %default]"
+  )
+, optparse::make_option(
+    "--effthreshpct"
+  , type = "numeric"
+  , default = 1
+  , help = "The funds raised percentage cutoff for the efficiency analysis
+        [default %default]"
+  )
+, optparse::make_option(
+    "--timeint"
+  , type = "character"
+  , default = "month"
+  , help = "Wether to show active users by week or month [default %default]"
+  )
+, optparse::make_option(
+    "--output_csv_directory"
+  , type = "character"
+  , default = "reports/csvs"
+  , help = "Directory where csv outputs go."
+  )
+)
 opt <- optparse::parse_args(optparse::OptionParser(option_list = option_list))
 param_time_interval <- opt$timeint
-param_user_set_result_directory_name <- opt$usersetcsvdir
-param_sess_dur_data_query_name <- opt$sessqueryname
 param_efficiency_analysis_threshold_week <- opt$effthreshweek
 param_efficiency_analysis_threshold_pct <- opt$effthreshpct
 
-source("./presentation_backend.r")
-csv_directory_name <- "csvs"
+source("src/presentation_backend.r")
+
+csv_directory_name <- "reports/csvs"
 
 line_probability_drop_off <-
   ggplot_build(user_success_plot_gloo) %>% {
@@ -77,8 +111,10 @@ write.csv(
   , row.names = F
 )
 
+print("line 114")
+
 time_to_threshold_hist_data <- presentation_functions.get_time_to_threshold_hist_data(
-  wide_data
+  wide_data.wide_data
   , param_efficiency_analysis_threshold_pct
   , timeframe = param_efficiency_analysis_threshold_week
 )
@@ -96,6 +132,8 @@ plot_time_to_threshold <- presentation_functions.plot_time_to_threshold_hist_dat
       , `    > 25` = 26
     )
   )
+
+print("line 136")
 
 bar_chart_threshold_analysis <-
   plot_time_to_threshold %>%

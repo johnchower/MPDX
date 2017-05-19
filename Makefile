@@ -5,6 +5,7 @@ DATA = $(wildcard data/*)
 INPUTDATA = $(wildcard input_data/*)
 USERSETS = $(wildcard data/user_set-*)
 QUERIES = $(wildcard queries/*)
+output_csv_directory := reports/csvs
 retention_curve_time_interval := month
 efficiency_analysis_threshold_week := 26
 efficiency_analysis_threshold_pct := 1
@@ -14,12 +15,21 @@ sess_dur_data_query_name := sess_dur_data
 auth_file := ~/.auth/authenticate
 .DEFAULT_GOAL := reports/presentation.html
 
-# reports/csvs.zip: src/presentation_backend.r lib/retention_curve_functions.r lib/presentation_functions.r data.zip munge.zip
+reports/csvs.zip: $(LIB) $(MUNGE) data.zip src/presentation_backend.r src/dump_csvs.r
+	unzip data.zip; \
+	mkdir -p $(output_csv_directory) ; \
+	Rscript ./src/dump_csvs.r --output_csv_directory $(output_csv_directory) --timeint $(retention_curve_time_interval) --effthreshpct $(efficiency_analysis_threshold_pct) --effthreshweek $(efficiency_analysis_threshold_week); \
+	rm -rf data; \
+	cd reports ; \
+	zip -r csvs.zip csvs ; \
+	rm -rf csvs ; \
 
-presentation.html: $(LIB) $(MUNGE) data.zip src/presentation_backend.r 
+reports/presentation.html: $(LIB) $(MUNGE) data.zip src/presentation_backend.r 
 	unzip data.zip; \
 	Rscript -e 'rmarkdown::render("presentation.rmd", output_format = "html_document", output_file = "presentation.html", params = list(timeint = "$(retention_curve_time_interval)", effthreshweek = $(efficiency_analysis_threshold_week), effthreshpct = $(efficiency_analysis_threshold_pct)))'; \
 	rm -rf data ; \
+	mkdir -p reports; \
+	mv presentation.html reports/ ; \
 
 data.zip: $(QUERIES) $(INPUTDATA) src/run_queries.r
 	mkdir -p data; \
@@ -34,6 +44,7 @@ mkfileViz.png: makefile2dot.py Makefile
 clean: 
 	rm data.zip ; \
 	rm -rf data ; \
+	rm reports/csvs.zip ; \
 
 
 .PHONY: clean data_directory
