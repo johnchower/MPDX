@@ -17,3 +17,16 @@ This is the code that produces the Cru MPDX analysis.
    command `Rscript -e "packrat::restore()"`. This will take some time.
 5. Once `packrat::restore()` has been run, you're good to go. Just run the
    command `make` and wait. The process should only take a couple of minutes.
+
+## How to read:
+
+This project uses the [ ProjectTemplate ](http://projecttemplate.net/index.html) 
+package to structure and control the workflow.
+
+In addition, there are naming conventions for functions and datasets.
+
+In addition, we use [ GNU Make ](https://www.gnu.org/software/make/) to build 
+the final outputs.
+
+In addition we use packrat to freeze R packages and ensure reproducibility down
+the line.
