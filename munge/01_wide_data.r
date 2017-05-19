@@ -1,15 +1,11 @@
-# Random comment to rerun everything
-proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
-suppressMessages(library(dplyr))
-source(file = "./interpolate_goals.r")
+# Formats and cleans the mpd_stats.csv dataset from Cru.
+# Datasets produced:
+# wide_data.wide_data - The result of cleaning mpd_stats.csv
 
 proj_root <- rprojroot::find_root(rprojroot::has_dirname("mpdx"))
 
 # Load data set
-wide_data <- utils::read.csv(
-    paste(proj_root, "mpd_stats.csv", sep = "/")
-  , stringsAsFactors = F
-  ) %>%
+wide_data_1 <- mpd.stats %>%
   rename(
     REPORT_DATE = TO_CHAR.A.REPORT_DATE..YYYY.MM.DD..
   , LAST_PL_DATE = TO_CHAR.A.LAST_PL_DATE..YYYY.MM.DD..
@@ -89,10 +85,7 @@ wide_data <- utils::read.csv(
   rename(nst_session = real_session)
 
 # Load Platform Actions Data Set
-user_pacount_week <- read.csv(
-  file = paste(proj_root, "user_pacount_week.csv", sep = "/")
-, stringsAsFactors = F
-) %>%
+user_pacount_week <- user.pacount.week %>%
   mutate(
     cohort_id = as.character(cohort_id)
   , pa_week = as.Date(pa_week)
@@ -104,10 +97,7 @@ user_pacount_week <- read.csv(
   )
 
 # Load assessments data set
-assessment_response <- read.csv(
-  file = paste(proj_root, "assessment_response.csv", sep = "/")
-, stringsAsFactors = F
-) %>%
+assessment_response <- assessment.query %>%
   mutate(
     cohort_id = as.character(cohort_id)
   , assessment_week = as.Date(assessment_week)
@@ -165,8 +155,8 @@ assessment_response <- read.csv(
   )
   }
 
-# Join Platform actions in to first data set
-wide_data_2 <- wide_data %>%
+# Join Platform actions and assessments in to first data set
+wide_data_2 <- wide_data_1 %>%
   left_join(
     user_pacount_week
   , by = c("EMAIL_ADDR", "nst_session", "REPORT_DATE")
@@ -324,7 +314,15 @@ wide_data_4  <- seq_days_by_nst_session %>%
   , by = c("EMAIL_ADDR", "nst_session")
   )
 
-# Write to csv
-write.csv(wide_data_3,
-        paste(proj_root, "mpd_stats_wide_3.csv", sep = "/"),
-        row.names = F)
+# Rename final product
+wide_data.wide_data <- wide_data_3 %>%
+  mutate(nst_session = as.character(nst_session))
+
+rm(
+  wide_data_1
+, wide_data_2
+, wide_data_3
+, wide_data_4
+, user_pacount_week
+, assessment_response
+)
