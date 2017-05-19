@@ -9,11 +9,9 @@ output_csv_directory := reports/csvs
 retention_curve_time_interval := month
 efficiency_analysis_threshold_week := 26
 efficiency_analysis_threshold_pct := 1
-user_set_query_directory := user_set_queries
-user_set_result_directory := user_sets
-sess_dur_data_query_name := sess_dur_data
 auth_file := ~/.auth/authenticate
-.DEFAULT_GOAL := reports/presentation.html
+
+.DEFAULT_GOAL := reports/presentation_plus_csvs.zip
 
 reports/presentation_plus_csvs.zip: reports/csvs.zip reports/presentation.html
 	mkdir -p reports/presentation_plus_csvs; \
@@ -54,6 +52,6 @@ mkfileViz.png: makefile2dot.py Makefile
 clean: 
 	rm data.zip ; \
 	rm -rf data ; \
-	rm reports/csvs.zip ; \
+	rm reports/* ; \
 
 .PHONY: clean
