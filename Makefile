@@ -15,6 +15,16 @@ sess_dur_data_query_name := sess_dur_data
 auth_file := ~/.auth/authenticate
 .DEFAULT_GOAL := reports/presentation.html
 
+reports/presentation_plus_csvs.zip: reports/csvs.zip reports/presentation.html
+	mkdir -p reports/presentation_plus_csvs; \
+	cd reports ; \
+	unzip csvs.zip -d presentation_plus_csvs; \
+	mv presentation_plus_csvs/csvs/* presentation_plus_csvs; \
+	rm -rf presentation_plus_csvs/csvs; \
+	cp presentation.html presentation_plus_csvs; \
+	zip -r presentation_plus_csvs.zip presentation_plus_csvs; \
+	rm -rf presentation_plus_csvs
+
 reports/csvs.zip: $(LIB) $(MUNGE) data.zip src/presentation_backend.r src/dump_csvs.r
 	unzip data.zip; \
 	mkdir -p $(output_csv_directory) ; \
@@ -46,5 +56,4 @@ clean:
 	rm -rf data ; \
 	rm reports/csvs.zip ; \
 
-
-.PHONY: clean data_directory
+.PHONY: clean
